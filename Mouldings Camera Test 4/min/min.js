@@ -620,7 +620,7 @@ function Tick()
 	//Animate(); //walking
 }
 
-function WebGL()
+function MainWebGL()
 {
 	var canvas = document.getElementById("webgl-canvas");
 	InitGL(canvas);
@@ -636,45 +636,38 @@ function WebGL()
 	Tick();
 }
 
-function RunWebGL(id)
+var WebGL = {};
+
+WebGL.InitApp = function (div)
 {
 	document.addEventListener( 'DOMContentLoaded', function () {
-		var div = document.getElementById(id);
+		//var div = document.getElementById(id);
 		var canvas = document.createElement("canvas");
 		canvas.setAttribute("id", "webgl-canvas");
-		
-		if(div.style.width != "" && div.style.height != "")
-		{
-			canvas.setAttribute("width", parseInt(div.style.width));
-			canvas.setAttribute("height", parseInt(div.style.height));
-		}
-		else
-		{
-			canvas.setAttribute("width", 500);
-			canvas.setAttribute("height", 500);
-		}
+		canvas.setAttribute("width", div.offsetWidth);
+		canvas.setAttribute("height", div.offsetHeight);
 		
 		div.appendChild(canvas);
-		WebGL()
+		MainWebGL()
 	}, false );
 }
 
-function PosX(newPos)
+WebGL.PosX = function (newPos)
 {
 	xPos = newPos;	
 }
 
-function PosZ(newPos)
+WebGL.PosZ = function (newPos)
 {
 	zPos = -newPos;
 }
 
-function RotateX(angle)
+WebGL.RotateX = function (angle)
 {
 	yaw = angle - 90;
 }
 
-function RotateY(angle)
+WebGL.RotateY = function (angle)
 {
 	pitch = angle + 90;
 }

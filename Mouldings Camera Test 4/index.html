@@ -15,15 +15,15 @@
 
 <body>
 
-<script>
-RunWebGL("canvas");
-PosX(-0.1);
-PosZ(0.5);
-RotateX(60);
-RotateY(-86);
-</script>
+<div id="canvas" style="height: 640px"></div>
 
-<div id="canvas" style="width: 640px; height: 640px"></div>
+<script>
+WebGL.InitApp(document.getElementById("canvas"));
+WebGL.PosX(-0.1);
+WebGL.PosZ(0.5);
+WebGL.RotateX(60);
+WebGL.RotateY(-86);
+</script>
 
 <!--<h2>Angles:</h2>
 <table style="border: 0; padding: 10px;">
