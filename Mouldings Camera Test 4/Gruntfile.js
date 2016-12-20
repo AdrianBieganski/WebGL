@@ -22,12 +22,21 @@ module.exports = function(grunt) {
           'min/ugly.js': ['<%= concat.dist.dest %>']
         }
       }
+    },
+	jsdoc : {
+        dist : {
+            src: ['scripts/main.js'],
+            options: {
+                destination: 'doc'
+            }
+        }
     }
   });
 
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.registerTask('default', ['concat', 'uglify']);
+  grunt.loadNpmTasks('grunt-jsdoc');
+  grunt.registerTask('default', ['concat', 'uglify', 'jsdoc']);
 };
 
 // http://jaketrent.com/post/run-requirejs-with-gruntjs/

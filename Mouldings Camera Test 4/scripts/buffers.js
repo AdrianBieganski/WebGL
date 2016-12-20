@@ -3,6 +3,10 @@ var cubeVertexPositionBuffer2;
 var cubeVertexPositionBuffer3;
 var cubeVertexNormalBuffer;
 var cubeVertexIndexBuffer;
+var cubeVertexColorBuffer;
+
+var backgroundPositionBuffer;
+var backgroundTextureCoordsBuffer;
 
 function InitBuffers()
 {
@@ -188,4 +192,85 @@ function InitBuffers()
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexNormals), gl.STATIC_DRAW);
 	cubeVertexNormalBuffer.itemSize = 3;
 	cubeVertexNormalBuffer.numItems = 24;
+	
+	/*******************************************/
+	
+    cubeVertexColorBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexColorBuffer);
+	
+	colors =
+	[
+		//Front
+		[1.0, 0.0, 0.0, 1.0],
+		//Back
+		[1.0, 1.0, 0.0, 1.0],
+		//Top
+		[0.0, 1.0, 0.0, 1.0],
+		//Bottom
+		[1.0, 0.5, 0.5, 1.0],
+		//Right
+		[1.0, 0.0, 1.0, 1.0],
+		//Left
+		[0.0, 0.0, 1.0, 1.0]
+    ];
+	
+	var unpackedColors = [];
+	for (var i in colors)
+	{
+		var color = colors[i];
+		for (var j = 0; j < 4; j++)
+		{
+			unpackedColors = unpackedColors.concat(color);
+		}
+	}
+	
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(unpackedColors), gl.STATIC_DRAW);
+	cubeVertexColorBuffer.itemSize = 4;
+	cubeVertexColorBuffer.numItems = 24;
+	
+	/*******************************************/
+	
+	backgroundPositionBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, backgroundPositionBuffer);
+	vertices =
+	[
+		//Front
+		-1.0, -1.0,  1.0,
+		1.0, -1.0,  1.0,
+		1.0,  1.0,  1.0,
+		-1.0,  1.0,  1.0,
+	];
+	
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+	backgroundPositionBuffer.itemSize = 3;
+	backgroundPositionBuffer.numItems = 4;
+	
+	/*******************************************/
+	
+	backgroundTextureCoordsBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, backgroundTextureCoordsBuffer);
+	var textureCoords =
+	[
+		//Front
+		0.0, 0.0,
+		1.0, 0.0,
+		1.0, 1.0,
+		0.0, 1.0,
+	];
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoords), gl.STATIC_DRAW);
+	backgroundTextureCoordsBuffer.itemSize = 2;
+	backgroundTextureCoordsBuffer.numItems = 4;
+	
+	/*******************************************/
+	
+	backgroundIndexBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, backgroundIndexBuffer);
+	
+	var VertexIndices =
+	[
+		0, 1, 2,      0, 2, 3    // Front face
+	]
+	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(VertexIndices), gl.STATIC_DRAW);
+	backgroundIndexBuffer.itemSize = 1;
+	backgroundIndexBuffer.numItems = 6;
 }

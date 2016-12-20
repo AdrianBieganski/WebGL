@@ -23,6 +23,7 @@ WebGL.PosX(-0.1);
 WebGL.PosZ(0.5);
 WebGL.RotateX(60);
 WebGL.RotateY(-86);
+//WebGL.ModelColor([1.0, 1.0, 1.0, 1.0]);
 </script>
 
 <!--<h2>Angles:</h2>
@@ -32,6 +33,19 @@ WebGL.RotateY(-86);
         <td>Ceiling angle <input type="text" id="ceiling" value="" /></td>
     </tr>
 </table>-->
+
+<h2>Model color:</h2>
+<table style="border: 0; padding: 10px;">
+<tr>
+    <td><b>Values:</b></td>
+    <td>R: <input type="text" id="ColorR" value="0.8" /></td>
+    <td>G: <input type="text" id="ColorG" value="0.9" /></td>
+    <td>B: <input type="text" id="ColorB" value="1.0" /></td>
+    <td>B: <input type="button" id="ColorButton" value="Change Color" onClick="WebGL.ModelColor();" /></td>
+</tr>
+</table>
+
+<script></script>
 
 </body>
 </html>
