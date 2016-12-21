@@ -120,41 +120,30 @@ function DrawBackground()
 
 function DrawScene()
 {
-	
-	
-	//shaderProgramTexture = InitShaders.InitShaders("texture");
-	
 	gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-	mat4.ortho(0, gl.viewportWidth, 0, gl.viewportHeight, 10, 1000, pMatrix);
-	
-	/*
-	gl.useProgram(shaderProgramTexture);
-	mvPushMatrix();
-		mat4.translate(mvMatrix, [-100, 1, 1]);
-		mat4.scale(mvMatrix, [1000,1000,10]);
-		mat4.rotate(mvMatrix, degToRad(180), [0, 1, 0]);
-		DrawBackground();
-	mvPopMatrix();
-	*/
-	
-	mat4.identity(mvMatrix);
 	
 	mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix);
-
 	mat4.identity(mvMatrix);
 	
+	gl.disable(gl.DEPTH_TEST);
+	gl.useProgram(shaderProgramTexture);
+	
+	mvPushMatrix();
+		mat4.translate(mvMatrix, [0, 0, -3]);
+		//mat4.scale(mvMatrix, [(gl.viewportWidth * 0.0013), (gl.viewportHeight * 0.0013), 1.0]);
+		DrawBackground();
+	mvPopMatrix();
+	
+	/*******/
+	
+	gl.enable(gl.DEPTH_TEST);
 	gl.useProgram(shaderProgramLight);
 	
 	mat4.rotate(mvMatrix, degToRad(-pitch), [1, 0, 0]);
 	mat4.rotate(mvMatrix, degToRad(-yaw), [0, 1, 0]);
 	mat4.translate(mvMatrix, [-xPos, -yPos, -zPos]);
 
-
-	
-	
-	
 	mat4.translate(mvMatrix, [-2, 0.5, -3]);
 	//DrawModel(cubeVertexPositionBuffer, cubeVertexNormalBuffer, cubeVertexIndexBuffer);
 	
@@ -183,21 +172,4 @@ function DrawScene()
 	DrawModel(2);
 	
 	mvPopMatrix();
-	
-	//DrawModel(3);
-	gl.useProgram(shaderProgramTexture);
-	
-	//mvRotate(-odchylenie_x, [1, 0, 0]);
-	//mvRotate(-odchylenie_y, [0, 1, 0]);
-	
-	
-	mat4.translate(mvMatrix, [5, -0.5, -2]);
-	mat4.scale(mvMatrix, [2,2,2]);
-	mat4.translate(mvMatrix, [xPos, yPos, zPos]);
-	mat4.rotate(mvMatrix, degToRad(yaw), [0, 1, 0]);
-	mat4.rotate(mvMatrix, degToRad(pitch), [1, 0, 0]);
-	
-	DrawBackground();
-
-	//console.log("DrawScene()");
 }

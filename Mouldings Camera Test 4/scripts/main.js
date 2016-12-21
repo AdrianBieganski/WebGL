@@ -189,13 +189,18 @@ var crateTexture;
 function InitTexture()
 {
 	crateTexture = gl.createTexture();
+}
+
+function TextureImage(image)
+{
 	crateTexture.image = new Image();
 	crateTexture.image.onload = function ()
 	{
 		handleLoadedTexture(crateTexture)
 	}
 	
-	crateTexture.image.src = "mouldings.png";
+	//crateTexture.image.src = "mouldings.png";
+	crateTexture.image.src = image;
 }
 
 var mvMatrix = mat4.create();
@@ -306,7 +311,7 @@ function HandleKeys()
 		speed = 0;
 	}
 }
-
+/*
 var worldVertexPositionBuffer = null;
 var worldVertexTextureCoordBuffer = null;
 
@@ -348,7 +353,7 @@ function handleLoadedWorld(data)
 	
 	//document.getElementById("loadingtext").textContent = "";
 }
-
+*/
 /*
 function loadWorld()
 {
@@ -446,9 +451,10 @@ function MainWebGL()
 	InitShaders();
 	InitBuffers();
 	InitTexture();
+	TextureImage("mouldings.png");
+	//TextureImage("sphere.png");
 	
-	gl.clearColor(0.5, 0.6, 0.7, 1.0);
-	gl.enable(gl.DEPTH_TEST);
+	gl.clearColor(0.0, 0.0, 0.0, 1.0);
 	
 	document.onkeydown = handleKeyDown;
 	document.onkeyup = handleKeyUp;
@@ -509,4 +515,20 @@ WebGL.ModelColor = function (color)
 {
 	//ModelColor = color;
 	ModelColor = [parseFloat(document.getElementById("ColorR").value), parseFloat(document.getElementById("ColorG").value), parseFloat(document.getElementById("ColorB").value), 1.0];
+}
+
+WebGL.Background = function ()
+{
+	/*
+	crateTexture = gl.createTexture();
+	crateTexture.image = new Image();
+	crateTexture.image.onload = function ()
+	{
+		handleLoadedTexture(crateTexture)
+	}
+	
+	crateTexture.image.src = "sphere.png";
+	*/
+	
+	//TextureImage("sphere.png");
 }
