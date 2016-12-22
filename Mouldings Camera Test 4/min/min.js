@@ -809,7 +809,7 @@ var WebGL = {};
 */
 WebGL.InitApp = function (div)
 {
-	document.addEventListener("DOMContentLoaded", function (event) {
+	//document.addEventListener("DOMContentLoaded", function (event) {
 		//var div = document.getElementById(id);
 		var canvas = document.createElement("canvas");
 		canvas.setAttribute("id", "webgl-canvas");
@@ -817,8 +817,8 @@ WebGL.InitApp = function (div)
 		canvas.setAttribute("height", div.offsetHeight);
 		
 		div.appendChild(canvas);
-		MainWebGL()
-	}, false );
+		MainWebGL();
+	//}, false );
 }
 
 /**
