@@ -200,7 +200,7 @@ function TextureImage(image)
 		handleLoadedTexture(crateTexture)
 	}
 }
-
+/*
 function TextureImage2()
 {
 	crateTexture.image = new Image();
@@ -210,7 +210,7 @@ function TextureImage2()
 		handleLoadedTexture(crateTexture)
 	}
 }
-
+*/
 
 var LoadedImage;
 function TextureImage3()
@@ -473,7 +473,7 @@ function MainWebGL()
 	InitShaders();
 	InitBuffers();
 	InitTexture();
-	TextureImage("mouldings.png");
+	//TextureImage("mouldings.png");
 	//TextureImage("sphere.png");
 	
 	/*
@@ -502,7 +502,7 @@ var WebGL = {};
 */
 WebGL.InitApp = function (div)
 {
-	document.addEventListener("DOMContentLoaded", function (event) {
+	//document.addEventListener("DOMContentLoaded", function (event) {
 		//var div = document.getElementById(id);
 		var canvas = document.createElement("canvas");
 		canvas.setAttribute("id", "webgl-canvas");
@@ -511,7 +511,7 @@ WebGL.InitApp = function (div)
 		
 		div.appendChild(canvas);
 		MainWebGL()
-	}, false );
+	//}, false );
 }
 
 /**
@@ -540,13 +540,15 @@ WebGL.RotateY = function (angle)
 
 WebGL.ModelColor = function (color)
 {
-	//ModelColor = color;
-	ModelColor = [parseFloat(document.getElementById("ColorR").value), parseFloat(document.getElementById("ColorG").value), parseFloat(document.getElementById("ColorB").value), 1.0];
+	ModelColor = color;
+	//ModelColor = [parseFloat(document.getElementById("ColorR").value), parseFloat(document.getElementById("ColorG").value), parseFloat(document.getElementById("ColorB").value), 1.0];
 }
 
 WebGL.Background = function (image)
 {
 	LoadedImage = image;
-	var element = document.getElementById("TextureButton");
-	element.addEventListener('click', TextureImage3);
+	//var element = document.getElementById("TextureButton");
+	//element.addEventListener('click', TextureImage3);
+	
+	TextureImage3();
 }

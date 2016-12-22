@@ -10,7 +10,7 @@
 <script type="text/javascript" src="scripts/models.js"></script>
 <script type="text/javascript" src="scripts/main.js"></script>-->
 
-<script type="text/javascript" src="min/min.js"></script>
+<script type="text/javascript" src="min/ugly.js"></script>
 </head>
 
 <body>
@@ -41,7 +41,7 @@ WebGL.RotateY(-86);
     <td>R: <input type="text" id="ColorR" value="0.8" /></td>
     <td>G: <input type="text" id="ColorG" value="0.9" /></td>
     <td>B: <input type="text" id="ColorB" value="1.0" /></td>
-    <td><input type="button" id="ColorButton" value="Change Color" onClick="WebGL.ModelColor();" /></td>
+    <td><input type="button" id="ColorButton" value="Change Color" onClick="WebGL.ModelColor([1.0, 0.5, 0.5, 1.0]);" /></td>
     <td><input type="button" id="TextureButton" value="Change Backgroung" /></td>
 </tr>
 </table>
@@ -49,12 +49,9 @@ WebGL.RotateY(-86);
 <script>
 
 var image1 = new Image();
-image1.src = "lights.png";
+image1.src = "./assets/img/sphere.png";
 
-var image2 = new Image();
-image2.src = "sphere.png";
-
-WebGL.Background(image2);
+WebGL.Background(image1);
 
 </script>
 
