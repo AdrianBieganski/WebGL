@@ -501,13 +501,35 @@ function InitTexture()
 function TextureImage(image)
 {
 	crateTexture.image = new Image();
+	crateTexture.image.src = image;
+	crateTexture.image.onload = function ()
+	{
+		handleLoadedTexture(crateTexture)
+	}
+}
+
+function TextureImage2()
+{
+	crateTexture.image = new Image();
+	crateTexture.image.src = "sphere.png";
+	crateTexture.image.onload = function ()
+	{
+		handleLoadedTexture(crateTexture)
+	}
+}
+
+
+var LoadedImage;
+function TextureImage3()
+{
+	crateTexture.image = LoadedImage;
+	crateTexture.image.src = LoadedImage.src;
 	crateTexture.image.onload = function ()
 	{
 		handleLoadedTexture(crateTexture)
 	}
 	
-	//crateTexture.image.src = "mouldings.png";
-	crateTexture.image.src = image;
+	console.log("Change background");
 }
 
 var mvMatrix = mat4.create();
@@ -761,6 +783,11 @@ function MainWebGL()
 	TextureImage("mouldings.png");
 	//TextureImage("sphere.png");
 	
+	/*
+	var element = document.getElementById("TextureButton");
+	element.addEventListener('click', TextureImage2);
+	*/
+	
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
 	
 	document.onkeydown = handleKeyDown;
@@ -782,7 +809,7 @@ var WebGL = {};
 */
 WebGL.InitApp = function (div)
 {
-	document.addEventListener( 'DOMContentLoaded', function () {
+	document.addEventListener("DOMContentLoaded", function (event) {
 		//var div = document.getElementById(id);
 		var canvas = document.createElement("canvas");
 		canvas.setAttribute("id", "webgl-canvas");
@@ -824,20 +851,11 @@ WebGL.ModelColor = function (color)
 	ModelColor = [parseFloat(document.getElementById("ColorR").value), parseFloat(document.getElementById("ColorG").value), parseFloat(document.getElementById("ColorB").value), 1.0];
 }
 
-WebGL.Background = function ()
+WebGL.Background = function (image)
 {
-	/*
-	crateTexture = gl.createTexture();
-	crateTexture.image = new Image();
-	crateTexture.image.onload = function ()
-	{
-		handleLoadedTexture(crateTexture)
-	}
-	
-	crateTexture.image.src = "sphere.png";
-	*/
-	
-	//TextureImage("sphere.png");
+	LoadedImage = image;
+	var element = document.getElementById("TextureButton");
+	element.addEventListener('click', TextureImage3);
 };var worldVertexPositionBuffer = null;
 var worldVertexTextureCoordBuffer = null;
 
