@@ -37,21 +37,28 @@ WebGL.RotateY(-86);
 <h2>Model color:</h2>
 <table style="border: 0; padding: 10px;">
 <tr>
-    <td><b>Values:</b></td>
+    <!--<td><b>Values:</b></td>
     <td>R: <input type="text" id="ColorR" value="0.8" /></td>
     <td>G: <input type="text" id="ColorG" value="0.9" /></td>
-    <td>B: <input type="text" id="ColorB" value="1.0" /></td>
-    <td><input type="button" id="ColorButton" value="Change Color" onClick="WebGL.ModelColor([1.0, 0.5, 0.5, 1.0]);" /></td>
-    <td><input type="button" id="TextureButton" value="Change Backgroung" /></td>
+    <td>B: <input type="text" id="ColorB" value="1.0" /></td>-->
+    <td><input type="button" id="ColorButton" value="Change Model Color" onClick="WebGL.ModelColor([1.0, 0.5, 0.5, 1.0]);" /></td>
+    <!--<td><input type="button" id="TextureButton" value="Change Background" /></td>-->
 </tr>
 </table>
 
 <script>
 
 var image1 = new Image();
-image1.src = "./assets/img/sphere.png";
+//image1.src = "./assets/img/lights.png";
+image1.width = 1024;
+image1.height = 768;
 
-WebGL.Background(image1);
+var image2 = new Image();
+image2.src = "./assets/img/sphere.png";
+image2.width = 480;
+image2.height = 640;
+
+WebGL.Background(image2);
 
 </script>
 
