@@ -922,7 +922,14 @@ WebGL.RotateY = function (angle)
 WebGL.ModelColor = function (color)
 {
 	ModelColor = color;
+	ModelColor = [Convert(color[0]), Convert(color[1]), Convert(color[2]), Convert(color[3])];
+	
 	//ModelColor = [parseFloat(document.getElementById("ColorR").value), parseFloat(document.getElementById("ColorG").value), parseFloat(document.getElementById("ColorB").value), 1.0];
+	
+	function Convert (color)
+	{
+		return color / 255;
+	}
 }
 
 WebGL.Background = function (image)
