@@ -61,39 +61,15 @@ function DrawModel(model_id)
 	
 	gl.uniform1i(shaderProgramLight.samplerUniform, 0);
 	
-		gl.uniform3f
-		(
-			shaderProgramLight.ambientColorUniform,
-			0.2	/*parseFloat(document.getElementById("ambientR").value)*/,
-			0.2	/*parseFloat(document.getElementById("ambientG").value)*/,
-			0.2	/*parseFloat(document.getElementById("ambientB").value)*/
-		);
-	
-		var lightingDirection =
-		[
-			-0.25	/*parseFloat(document.getElementById("lightDirectionX").value)*/,
-			-0.25	/*parseFloat(document.getElementById("lightDirectionY").value)*/,
-			-1.0	/*parseFloat(document.getElementById("lightDirectionZ").value)*/
-		];
-		
-		var adjustedLD = vec3.create();
-		vec3.normalize(lightingDirection, adjustedLD);
-		vec3.scale(adjustedLD, -1);
-		gl.uniform3fv(shaderProgramLight.lightingDirectionUniform, adjustedLD);
-		
-		gl.uniform3f
-		(
-			shaderProgramLight.directionalColorUniform,
-			0.8	/*parseFloat(document.getElementById("directionalR").value)*/,
-			0.8	/*parseFloat(document.getElementById("directionalG").value)*/,
-			0.8	/*parseFloat(document.getElementById("directionalB").value)*/
-		);
+	gl.uniform3f(shaderProgramLight.ambientColorUniform, 0.2, 0.2, 0.2);
+	var lightingDirection = [-0.25, -0.25, -1.0];
+	var adjustedLD = vec3.create();
+	vec3.normalize(lightingDirection, adjustedLD);
+	vec3.scale(adjustedLD, -1);
+	gl.uniform3fv(shaderProgramLight.lightingDirectionUniform, adjustedLD);
+	gl.uniform3f(shaderProgramLight.directionalColorUniform, 0.8, 0.8, 0.8);
 	
 	gl.uniform4fv(shaderProgramLight.vertexColorUniform, ModelColor);
-	/*
-	gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexColorBuffer);
-	gl.vertexAttribPointer(shaderProgramLight.vertexColorAttribute, cubeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-	*/
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer);
 	setMatrixUniforms(shaderProgramLight);
 	
@@ -115,7 +91,6 @@ function DrawBackground()
 	setMatrixUniforms(shaderProgramTexture);
 	
 	gl.drawElements(gl.TRIANGLES, backgroundIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-	//gl.drawArrays(gl.TRIANGLE_STRIP, 0, backgroundPositionBuffer.numItems);
 }
 
 function DrawScene()
@@ -145,23 +120,6 @@ function DrawScene()
 	mat4.translate(mvMatrix, [-xPos, -yPos, -zPos]);
 
 	mat4.translate(mvMatrix, [-2, 0.5, -3]);
-	//DrawModel(cubeVertexPositionBuffer, cubeVertexNormalBuffer, cubeVertexIndexBuffer);
-	
-	/*
-	mvPushMatrix();
-	mat4.translate(mvMatrix, [3, 0, 0]);
-	DrawModel(3);
-	
-	
-	mat4.rotate(mvMatrix, degToRad(90), [0, 1, 0]);
-	mat4.translate(mvMatrix, [-0.5, 0, 0.5]);
-	DrawModel(3);
-	
-	mat4.rotate(mvMatrix, degToRad(90), [90, 0, 0]);
-	mat4.translate(mvMatrix, [0, -0.5, -0.5]);
-	DrawModel(3);
-	mvPopMatrix();
-	*/
 	
 	mvPushMatrix();
 	mat4.translate(mvMatrix, [3, 0.45, 0]);

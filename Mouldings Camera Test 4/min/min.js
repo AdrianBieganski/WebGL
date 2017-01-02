@@ -340,9 +340,6 @@ function loadShader(path)
 	}
 	
 	request.send();
-	//return request.responseText;
-	
-	//return (request.status == 200) ? request.responseText : null;
 }
 
 var LightFragmentShader =
@@ -429,16 +426,11 @@ function InitShaders()
 		alert("Could not initialise shaders");
 	}
 	
-	
-	
 	shaderProgramLight.vertexPositionAttribute = gl.getAttribLocation(shaderProgramLight, "aVertexPosition");
 	gl.enableVertexAttribArray(shaderProgramLight.vertexPositionAttribute);
 	
 	shaderProgramLight.vertexNormalAttribute = gl.getAttribLocation(shaderProgramLight, "aVertexNormal");
 	gl.enableVertexAttribArray(shaderProgramLight.vertexNormalAttribute);
-	
-	//shaderProgramLight.vertexColorAttribute = gl.getAttribLocation(shaderProgramLight, "aVertexColor");
-    //gl.enableVertexAttribArray(shaderProgramLight.vertexColorAttribute);
 	
 	shaderProgramLight.vertexColorUniform = gl.getUniformLocation(shaderProgramLight, "uVertexColor");
 	
@@ -450,16 +442,6 @@ function InitShaders()
 	shaderProgramLight.ambientColorUniform = gl.getUniformLocation(shaderProgramLight, "uAmbientColor");
 	shaderProgramLight.lightingDirectionUniform = gl.getUniformLocation(shaderProgramLight, "uLightingDirection");
 	shaderProgramLight.directionalColorUniform = gl.getUniformLocation(shaderProgramLight, "uDirectionalColor");
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	shaderProgramTexture = gl.createProgram();
 		
@@ -487,37 +469,32 @@ function handleLoadedTexture2(GLTexture)
     var texture = gl.createTexture();
 	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
     gl.bindTexture(gl.TEXTURE_2D, texture);
-    //if (!isPowerOfTwo(image.image.width) || !isPowerOfTwo(image.image.height))
-	//{
-		// Scale up the texture to the next highest power of two dimensions.
-        var canvas = document.createElement("canvas");
-        //canvas.width = nextHighestPowerOfTwo(GLTexture.image.width);
-        //canvas.height = nextHighestPowerOfTwo(GLTexture.image.height);
+	
+	var canvas = document.createElement("canvas");
+	
+	canvas.width = 2048;
+	canvas.height = 2048;
+	
+	var ctx = canvas.getContext("2d");
+	
+	ctx.beginPath();
+	ctx.rect(0, 0, canvas.width, canvas.height);
+	ctx.fillStyle = "#000";
+	ctx.fill();
+	
+	if (GLTexture.image.width >= GLTexture.image.height)
+	{
+		var height = canvas.height * GLTexture.image.height / GLTexture.image.width;
+		ctx.drawImage(LoadedImage, 0, ((canvas.width - height) / 2), canvas.width, height);
+	}
+	else
+	{
+		var width = canvas.width * GLTexture.image.width / GLTexture.image.height;
+		ctx.drawImage(LoadedImage, ((canvas.height - width) / 2), 0, width, canvas.height);
+	}
+	
+	image = canvas;
 		
-		canvas.width = 2048;
-		canvas.height = 2048;
-		
-        var ctx = canvas.getContext("2d");
-		
-		ctx.beginPath();
-		ctx.rect(0, 0, canvas.width, canvas.height);
-		ctx.fillStyle = "#000";
-		ctx.fill();
-		
-		if (GLTexture.image.width >= GLTexture.image.height)
-		{
-			var height = canvas.height * GLTexture.image.height / GLTexture.image.width;
-			ctx.drawImage(LoadedImage, 0, ((canvas.width - height) / 2), canvas.width, height);
-		}
-		else
-		{
-			var width = canvas.width * GLTexture.image.width / GLTexture.image.height;
-			ctx.drawImage(LoadedImage, ((canvas.height - width) / 2), 0, width, canvas.height);
-		}
-		
-        //ctx.drawImage(LoadedImage, 0, 0, GLTexture.image.width, GLTexture.image.height);
-        image = canvas;
-    //}
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
     gl.generateMipmap(gl.TEXTURE_2D);
     gl.bindTexture(gl.TEXTURE_2D, null);
@@ -529,7 +506,7 @@ function Proportions (x, y)
 {
 	if (GLTexture.image.width > GLTexture.image.height)
 	{
-		 /*height*/ return 2048 * GLTexture.image.height / GLTexture.image.width; 
+		 return 2048 * GLTexture.image.height / GLTexture.image.width; 
 	}
 	
 	return 
@@ -556,9 +533,6 @@ function handleLoadedTexture(texture)
 	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-	//gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-	//gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-	
 	gl.bindTexture(gl.TEXTURE_2D, null);
 }
 
@@ -578,17 +552,6 @@ function TextureImage(image)
 		handleLoadedTexture2(crateTexture);
 	}
 }
-/*
-function TextureImage2()
-{
-	crateTexture.image = new Image();
-	crateTexture.image.src = "sphere.png";
-	crateTexture.image.onload = function ()
-	{
-		handleLoadedTexture(crateTexture)
-	}
-}
-*/
 
 var LoadedImage;
 
@@ -714,64 +677,6 @@ function HandleKeys()
 		speed = 0;
 	}
 }
-/*
-var worldVertexPositionBuffer = null;
-var worldVertexTextureCoordBuffer = null;
-
-function handleLoadedWorld(data)
-{
-	var lines = data.split("\r\n");
-	var vertexCount = 0;
-	var vertexPositions = [];
-	var vertexTextureCoords = [];
-	for (var i in lines)
-	{
-		var vals = lines[i].replace(/^\s+/, "").split(/\s+/);
-		if (vals.length == 5 && vals[0] != "//")
-		{
-			// It is a line describing a vertex; get X, Y and Z first
-			vertexPositions.push(parseFloat(vals[0]));
-			vertexPositions.push(parseFloat(vals[1]));
-			vertexPositions.push(parseFloat(vals[2]));
-			
-			// And then the texture coords
-			vertexTextureCoords.push(parseFloat(vals[3]));
-			vertexTextureCoords.push(parseFloat(vals[4]));
-			
-			vertexCount += 1;
-		}
-	}
-
-	worldVertexPositionBuffer = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, worldVertexPositionBuffer);
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexPositions), gl.STATIC_DRAW);
-	worldVertexPositionBuffer.itemSize = 3;
-	worldVertexPositionBuffer.numItems = vertexCount;
-	
-	worldVertexTextureCoordBuffer = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, worldVertexTextureCoordBuffer);
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexTextureCoords), gl.STATIC_DRAW);
-	worldVertexTextureCoordBuffer.itemSize = 2;
-	worldVertexTextureCoordBuffer.numItems = vertexCount;
-	
-	//document.getElementById("loadingtext").textContent = "";
-}
-*/
-/*
-function loadWorld()
-{
-	var request = new XMLHttpRequest();
-	request.open("GET", "mouldings.txt");
-	request.onreadystatechange = function ()
-	{
-		if (request.readyState == 4)
-		{
-			handleLoadedWorld(request.responseText);
-		}
-	}
-	request.send();
-}
-*/
 
 var lastTime = 0;
 // Used to make us "jog" up and down as we move forward.
@@ -789,7 +694,7 @@ function Animate()
 			xPos -= Math.sin(degToRad(yaw)) * speed * elapsed;
 			zPos -= Math.cos(degToRad(yaw)) * speed * elapsed;
 			
-			joggingAngle += elapsed * 0.9; // 0.6 "fiddle factor" - makes it feel more realistic :-)
+			joggingAngle += elapsed * 0.9;
 			yPos = Math.sin(degToRad(joggingAngle)) / 40 + 0.4
 		}
 		
@@ -800,9 +705,6 @@ function Animate()
 		wallAngle = AngleCalc(wallAngle);
 		ceilingAngle = pitch - 90;
 		ceilingAngle = AngleCalc(ceilingAngle);
-		
-		//document.getElementById("wall").value = wallAngle;
-		//document.getElementById("ceiling").value = ceilingAngle;
 	}
 	lastTime = timeNow;
 }
@@ -842,11 +744,8 @@ function Tick()
 	requestAnimFrame(Tick);
 	HandleKeys();
 	DrawScene();
-	//Animate(); //walking
-	//console.log("Tick()");
 }
 
-/** This is a description of the foo function. */
 function MainWebGL()
 {
 	var canvas = document.getElementById("webgl-canvas");
@@ -854,21 +753,13 @@ function MainWebGL()
 	InitShaders();
 	InitBuffers();
 	InitTexture();
-	//TextureImage("mouldings.png");
-	TextureImage("sphere.png");
-	
-	/*
-	var element = document.getElementById("TextureButton");
-	element.addEventListener('click', TextureImage2);
-	*/
-	
+
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
 	
 	document.onkeydown = handleKeyDown;
 	document.onkeyup = handleKeyUp;
 	
 	Tick();
-	//console.log("WebGL()");
 }
 
 /**
@@ -883,16 +774,13 @@ var WebGL = {};
 */
 WebGL.InitApp = function (div)
 {
-	//document.addEventListener("DOMContentLoaded", function (event) {
-		//var div = document.getElementById(id);
-		var canvas = document.createElement("canvas");
-		canvas.setAttribute("id", "webgl-canvas");
-		canvas.setAttribute("width", div.offsetWidth);
-		canvas.setAttribute("height", div.offsetHeight);
-		
-		div.appendChild(canvas);
-		MainWebGL()
-	//}, false );
+	var canvas = document.createElement("canvas");
+	canvas.setAttribute("id", "webgl-canvas");
+	canvas.setAttribute("width", div.offsetWidth);
+	canvas.setAttribute("height", div.offsetHeight);
+	
+	div.appendChild(canvas);
+	MainWebGL()
 }
 
 /**
@@ -924,8 +812,6 @@ WebGL.ModelColor = function (color)
 	ModelColor = color;
 	ModelColor = [Convert(color[0]), Convert(color[1]), Convert(color[2]), Convert(color[3])];
 	
-	//ModelColor = [parseFloat(document.getElementById("ColorR").value), parseFloat(document.getElementById("ColorG").value), parseFloat(document.getElementById("ColorB").value), 1.0];
-	
 	function Convert (color)
 	{
 		return color / 255;
@@ -934,10 +820,7 @@ WebGL.ModelColor = function (color)
 
 WebGL.Background = function (image)
 {
-	LoadedImage = image;
-	//var element = document.getElementById("TextureButton");
-	//element.addEventListener('click', TextureImage3);
-	
+	LoadedImage = image;	
 	TextureImage3();
 };var worldVertexPositionBuffer = null;
 var worldVertexTextureCoordBuffer = null;
@@ -1002,39 +885,15 @@ function DrawModel(model_id)
 	
 	gl.uniform1i(shaderProgramLight.samplerUniform, 0);
 	
-		gl.uniform3f
-		(
-			shaderProgramLight.ambientColorUniform,
-			0.2	/*parseFloat(document.getElementById("ambientR").value)*/,
-			0.2	/*parseFloat(document.getElementById("ambientG").value)*/,
-			0.2	/*parseFloat(document.getElementById("ambientB").value)*/
-		);
-	
-		var lightingDirection =
-		[
-			-0.25	/*parseFloat(document.getElementById("lightDirectionX").value)*/,
-			-0.25	/*parseFloat(document.getElementById("lightDirectionY").value)*/,
-			-1.0	/*parseFloat(document.getElementById("lightDirectionZ").value)*/
-		];
-		
-		var adjustedLD = vec3.create();
-		vec3.normalize(lightingDirection, adjustedLD);
-		vec3.scale(adjustedLD, -1);
-		gl.uniform3fv(shaderProgramLight.lightingDirectionUniform, adjustedLD);
-		
-		gl.uniform3f
-		(
-			shaderProgramLight.directionalColorUniform,
-			0.8	/*parseFloat(document.getElementById("directionalR").value)*/,
-			0.8	/*parseFloat(document.getElementById("directionalG").value)*/,
-			0.8	/*parseFloat(document.getElementById("directionalB").value)*/
-		);
+	gl.uniform3f(shaderProgramLight.ambientColorUniform, 0.2, 0.2, 0.2);
+	var lightingDirection = [-0.25, -0.25, -1.0];
+	var adjustedLD = vec3.create();
+	vec3.normalize(lightingDirection, adjustedLD);
+	vec3.scale(adjustedLD, -1);
+	gl.uniform3fv(shaderProgramLight.lightingDirectionUniform, adjustedLD);
+	gl.uniform3f(shaderProgramLight.directionalColorUniform, 0.8, 0.8, 0.8);
 	
 	gl.uniform4fv(shaderProgramLight.vertexColorUniform, ModelColor);
-	/*
-	gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexColorBuffer);
-	gl.vertexAttribPointer(shaderProgramLight.vertexColorAttribute, cubeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-	*/
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer);
 	setMatrixUniforms(shaderProgramLight);
 	
@@ -1056,7 +915,6 @@ function DrawBackground()
 	setMatrixUniforms(shaderProgramTexture);
 	
 	gl.drawElements(gl.TRIANGLES, backgroundIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-	//gl.drawArrays(gl.TRIANGLE_STRIP, 0, backgroundPositionBuffer.numItems);
 }
 
 function DrawScene()
@@ -1086,23 +944,6 @@ function DrawScene()
 	mat4.translate(mvMatrix, [-xPos, -yPos, -zPos]);
 
 	mat4.translate(mvMatrix, [-2, 0.5, -3]);
-	//DrawModel(cubeVertexPositionBuffer, cubeVertexNormalBuffer, cubeVertexIndexBuffer);
-	
-	/*
-	mvPushMatrix();
-	mat4.translate(mvMatrix, [3, 0, 0]);
-	DrawModel(3);
-	
-	
-	mat4.rotate(mvMatrix, degToRad(90), [0, 1, 0]);
-	mat4.translate(mvMatrix, [-0.5, 0, 0.5]);
-	DrawModel(3);
-	
-	mat4.rotate(mvMatrix, degToRad(90), [90, 0, 0]);
-	mat4.translate(mvMatrix, [0, -0.5, -0.5]);
-	DrawModel(3);
-	mvPopMatrix();
-	*/
 	
 	mvPushMatrix();
 	mat4.translate(mvMatrix, [3, 0.45, 0]);

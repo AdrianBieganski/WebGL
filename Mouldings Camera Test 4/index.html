@@ -3,18 +3,14 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>WebGL - Mouldings Camera Test</title>
-
 <!--<script type="text/javascript" src="scripts/glMatrix-0.9.5.min.js"></script>
 <script type="text/javascript" src="scripts/webgl-utils.js"></script>
 <script type="text/javascript" src="scripts/buffers.js"></script>
 <script type="text/javascript" src="scripts/models.js"></script>
 <script type="text/javascript" src="scripts/main.js"></script>-->
-
 <script type="text/javascript" src="min/ugly.js"></script>
 </head>
-
 <body>
-
 <div id="canvas" style="height: 640px"></div>
 
 <script>
@@ -23,43 +19,22 @@ WebGL.PosX(-0.1);
 WebGL.PosZ(0.5);
 WebGL.RotateX(60);
 WebGL.RotateY(-86);
-//WebGL.ModelColor([1.0, 1.0, 1.0, 1.0]);
 </script>
-
-<!--<h2>Angles:</h2>
-<table style="border: 0; padding: 10px;">
-    <tr>
-        <td>Wall angle <input type="text" id="wall" value="" /></td>
-        <td>Ceiling angle <input type="text" id="ceiling" value="" /></td>
-    </tr>
-</table>-->
 
 <h2>Model color:</h2>
 <table style="border: 0; padding: 10px;">
 <tr>
-    <!--<td><b>Values:</b></td>
-    <td>R: <input type="text" id="ColorR" value="0.8" /></td>
-    <td>G: <input type="text" id="ColorG" value="0.9" /></td>
-    <td>B: <input type="text" id="ColorB" value="1.0" /></td>-->
-    <td><input type="button" id="ColorButton" value="Change Model Color" onClick="WebGL.ModelColor([1.0, 0.5, 0.5, 1.0]);" /></td>
-    <!--<td><input type="button" id="TextureButton" value="Change Background" /></td>-->
+<td><input type="button" id="ColorButton" value="Change Model Color" onClick="WebGL.ModelColor([255, 127, 127, 255]);" /></td>
 </tr>
 </table>
 
 <script>
+var image = new Image();
+image.src = "./assets/img/sphere.png";
+image.width = 480;
+image.height = 640;
 
-var image1 = new Image();
-//image1.src = "./assets/img/lights.png";
-image1.width = 1024;
-image1.height = 768;
-
-var image2 = new Image();
-image2.src = "./assets/img/sphere.png";
-image2.width = 480;
-image2.height = 640;
-
-WebGL.Background(image2);
-
+WebGL.Background(image);
 </script>
 
 </body>
