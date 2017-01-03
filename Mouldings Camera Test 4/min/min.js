@@ -462,21 +462,17 @@ function InitShaders()
 	
 }
 
-
-
-function handleLoadedTexture2(GLTexture)
+function handleLoadedTexture2(GLTexture) //przekazac canvasa zamiast GLTexture
 {
     var texture = gl.createTexture();
 	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
     gl.bindTexture(gl.TEXTURE_2D, texture);
 	
 	var canvas = document.createElement("canvas");
-	
 	canvas.width = 2048;
 	canvas.height = 2048;
 	
 	var ctx = canvas.getContext("2d");
-	
 	ctx.beginPath();
 	ctx.rect(0, 0, canvas.width, canvas.height);
 	ctx.fillStyle = "#000";
@@ -485,45 +481,21 @@ function handleLoadedTexture2(GLTexture)
 	if (GLTexture.image.width >= GLTexture.image.height)
 	{
 		var height = canvas.height * GLTexture.image.height / GLTexture.image.width;
-		ctx.drawImage(LoadedImage, 0, ((canvas.width - height) / 2), canvas.width, height);
+		ctx.drawImage(crateTexture.image, 0, ((canvas.width - height) / 2), canvas.width, height);
 	}
 	else
 	{
 		var width = canvas.width * GLTexture.image.width / GLTexture.image.height;
-		ctx.drawImage(LoadedImage, ((canvas.height - width) / 2), 0, width, canvas.height);
+		ctx.drawImage(crateTexture.image, ((canvas.height - width) / 2), 0, width, canvas.height);
 	}
 	
-	image = canvas;
-		
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
+    //gl.generateMipmap(gl.TEXTURE_2D);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.bindTexture(gl.TEXTURE_2D, null);
 	
 	crateTexture = texture;
-}
-
-function Proportions (x, y)
-{
-	if (GLTexture.image.width > GLTexture.image.height)
-	{
-		 return 2048 * GLTexture.image.height / GLTexture.image.width; 
-	}
-	
-	return 
-}
-
-function isPowerOfTwo(x)
-{
-    return (x & (x - 1)) == 0;
-}
-
-function nextHighestPowerOfTwo(x)
-{
-    --x;
-    for (var i = 1; i < 32; i <<= 1) {
-        x = x | x >> i;
-    }
-    return x + 1;
 }
 
 function handleLoadedTexture(texture)
@@ -553,20 +525,32 @@ function TextureImage(image)
 	}
 }
 
-var LoadedImage;
+var ImagesArray = [];
 
-function TextureImage3()
+function SetTextureImage(id, image)
 {
-	crateTexture.image = LoadedImage;
-	crateTexture.image.src = LoadedImage.src;
-	crateTexture.image.width = LoadedImage.width;
-	crateTexture.image.height = LoadedImage.height;
-	crateTexture.image.onload = function ()
+	ImagesArray[id] = image;
+}
+
+function ShowTextureImage(id)
+{
+	if (ImagesArray[id] != undefined)
 	{
-		handleLoadedTexture2(crateTexture);
+		crateTexture.image = ImagesArray[id];
+		crateTexture.image.src = ImagesArray[id].src;
+		crateTexture.image.width = ImagesArray[id].width;
+		crateTexture.image.height = ImagesArray[id].height;
+		crateTexture.image.onload = function ()
+		{
+			handleLoadedTexture2(crateTexture);
+		}
+		
+		console.log("Background changed.");
 	}
-	
-	console.log("Change background");
+	else
+	{
+		console.log("Image does not init.");	
+	}
 }
 
 var mvMatrix = mat4.create();
@@ -820,8 +804,27 @@ WebGL.ModelColor = function (color)
 
 WebGL.Background = function (image)
 {
-	LoadedImage = image;	
-	TextureImage3();
+	TextureImage3(image);
+}
+
+WebGL.SetImage = function (id, image)
+{
+	SetTextureImage(id, image);
+}
+
+WebGL.ShowImage = function (id)
+{
+	ShowTextureImage(id);
+}
+
+WebGL.CheckImages = function ()
+{
+	//console.log(ImagesArray);
+	
+	for(i = 0; i < ImagesArray.length; i++)
+	{
+		console.log(ImagesArray[i]);
+	}
 };var worldVertexPositionBuffer = null;
 var worldVertexTextureCoordBuffer = null;
 
