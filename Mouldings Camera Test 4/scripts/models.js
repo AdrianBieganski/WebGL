@@ -85,7 +85,7 @@ function DrawBackground()
 	gl.vertexAttribPointer(shaderProgramTexture.textureCoordAttribute, backgroundTextureCoordsBuffer.itemSize, gl.FLOAT, false, 0, 0);
 	
 	gl.activeTexture(gl.TEXTURE0);
-	gl.bindTexture(gl.TEXTURE_2D, crateTexture);
+	gl.bindTexture(gl.TEXTURE_2D, BackgroundTexture);
 	gl.uniform1i(shaderProgramTexture.samplerUniform, 0);
 	
 	setMatrixUniforms(shaderProgramTexture);

@@ -459,15 +459,19 @@ function InitShaders()
 	shaderProgramTexture.pMatrixUniform = gl.getUniformLocation(shaderProgramTexture, "uPMatrix");
 	shaderProgramTexture.mvMatrixUniform = gl.getUniformLocation(shaderProgramTexture, "uMVMatrix");
 	shaderProgramTexture.samplerUniform = gl.getUniformLocation(shaderProgramTexture, "uSampler");
-	
 }
 
-function handleLoadedTexture2(GLTexture) //przekazac canvasa zamiast GLTexture
+var BackgroundTexture;
+
+function InitTexture()
 {
-    var texture = gl.createTexture();
-	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-	
+	BackgroundTexture = gl.createTexture();
+}
+
+var ImagesArray = [];
+
+function SetTextureImage(id, image)
+{
 	var canvas = document.createElement("canvas");
 	canvas.width = 2048;
 	canvas.height = 2048;
@@ -478,73 +482,47 @@ function handleLoadedTexture2(GLTexture) //przekazac canvasa zamiast GLTexture
 	ctx.fillStyle = "#000";
 	ctx.fill();
 	
-	if (GLTexture.image.width >= GLTexture.image.height)
+	if (image.width >= image.height)
 	{
-		var height = canvas.height * GLTexture.image.height / GLTexture.image.width;
-		ctx.drawImage(crateTexture.image, 0, ((canvas.width - height) / 2), canvas.width, height);
+		var height = canvas.height * image.height / image.width;
+		ctx.drawImage(image, 0, ((canvas.width - height) / 2), canvas.width, height);
 	}
 	else
 	{
-		var width = canvas.width * GLTexture.image.width / GLTexture.image.height;
-		ctx.drawImage(crateTexture.image, ((canvas.height - width) / 2), 0, width, canvas.height);
+		var width = canvas.width * image.width / image.height;
+		ctx.drawImage(image, ((canvas.height - width) / 2), 0, width, canvas.height);
 	}
 	
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
-    //gl.generateMipmap(gl.TEXTURE_2D);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.bindTexture(gl.TEXTURE_2D, null);
-	
-	crateTexture = texture;
-}
-
-function handleLoadedTexture(texture)
-{
-	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-	gl.bindTexture(gl.TEXTURE_2D, texture);
-	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-	gl.bindTexture(gl.TEXTURE_2D, null);
-}
-
-var crateTexture;
-
-function InitTexture()
-{
-	crateTexture = gl.createTexture();
-}
-
-function TextureImage(image)
-{
-	crateTexture.image = new Image();
-	crateTexture.image.src = image;
-	crateTexture.image.onload = function ()
+	if (ImagesArray[id] == undefined)
 	{
-		handleLoadedTexture2(crateTexture);
+		var texture = gl.createTexture();
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+		gl.bindTexture(gl.TEXTURE_2D, texture);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
+		//gl.generateMipmap(gl.TEXTURE_2D);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+		gl.bindTexture(gl.TEXTURE_2D, null);
+		
+		ImagesArray[id] = texture;
+		//console.log("New id has created.");
 	}
-}
-
-var ImagesArray = [];
-
-function SetTextureImage(id, image)
-{
-	ImagesArray[id] = image;
+	else
+	{
+		gl.bindTexture(gl.TEXTURE_2D, ImagesArray[id]);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+		gl.bindTexture(gl.TEXTURE_2D, null);
+		//console.log("Id has changed.");
+	}
 }
 
 function ShowTextureImage(id)
 {
 	if (ImagesArray[id] != undefined)
 	{
-		crateTexture.image = ImagesArray[id];
-		crateTexture.image.src = ImagesArray[id].src;
-		crateTexture.image.width = ImagesArray[id].width;
-		crateTexture.image.height = ImagesArray[id].height;
-		crateTexture.image.onload = function ()
-		{
-			handleLoadedTexture2(crateTexture);
-		}
-		
+		BackgroundTexture = ImagesArray[id];
 		console.log("Background changed.");
 	}
 	else
@@ -912,7 +890,7 @@ function DrawBackground()
 	gl.vertexAttribPointer(shaderProgramTexture.textureCoordAttribute, backgroundTextureCoordsBuffer.itemSize, gl.FLOAT, false, 0, 0);
 	
 	gl.activeTexture(gl.TEXTURE0);
-	gl.bindTexture(gl.TEXTURE_2D, crateTexture);
+	gl.bindTexture(gl.TEXTURE_2D, BackgroundTexture);
 	gl.uniform1i(shaderProgramTexture.samplerUniform, 0);
 	
 	setMatrixUniforms(shaderProgramTexture);
