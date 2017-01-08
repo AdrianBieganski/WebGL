@@ -2227,6 +2227,46 @@ var TextureVertexShader =
 "vTextureCoord = aTextureCoord;" +
 "}"
 
+var MouldingsFragmentShader = 
+"precision mediump float;" +
+"uniform vec3 uFaceColor;" +
+"varying vec3 vNormal;" +
+"void main() {" +
+"float ambient = 0.5;" +
+"float diff = 0.3;" +
+"float fromB=0.15;" +
+"vec3 diffDir = vec3(sqrt(1.0-fromB*fromB),0.0,fromB);" +
+"float diffDot = diff*clamp(dot(diffDir,vNormal),0.0,1.0);" +
+"gl_FragColor = vec4((ambient+diffDot)*uFaceColor.rgb,1.0);" +
+"}";
+
+var MouldingsVertexShader = 
+"uniform    mat4        uMVPMatrix;" +
+"uniform    vec3       dir1;" +
+"uniform    vec3        dir2;" +
+"uniform    float        uIsRight;" +
+"uniform    float        mSize;" +
+"uniform    float        zDistance;" +
+"attribute  vec4        vPosition;" +
+"attribute  vec3        aNormal;" +
+"varying vec3 vNormal;" +
+"void main() {" +
+"vec3 mDir;" +
+"float sign;" +
+"if(uIsRight>0.5){" +
+"mDir = dir2;" +
+"sign = -1.0;" +
+"}else{" +
+"mDir = dir1;" +
+"sign = 1.0;" +
+"}" +
+"vec3 dirX = sign*vec3(-mDir.y,mDir.x,mDir.z);" +
+"vec3 dirY = mDir;" +
+"vNormal = aNormal;" +
+"vec3 vP =  ( mSize*vPosition.x*dirX+2.0*vPosition.y*dirY+mSize*vec3(0.0,0.0,-1.0)*vPosition.z);" +
+"gl_Position = uMVPMatrix * vec4(vP.x,vP.y,vP.z-zDistance,1.0);" +
+"}";
+
 function GetShader(type, value)
 {
 	var shader = gl.createShader(type);
