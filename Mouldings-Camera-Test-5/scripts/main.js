@@ -581,3 +581,16 @@ WebGL.CheckImages = function ()
 		console.log(ImagesArray[i]);
 	}
 }
+
+WebGL.ClearImages = function ()
+{
+	console.log("ClearImages");
+	
+	for(i = 0; i < ImagesArray.length; i++)
+	{
+		delete ImagesArray[i];
+	}
+	
+	delete ImagesArray;
+	this.ShowImage(0);
+}
