@@ -198,68 +198,6 @@ function InitShaders()
 
 
 
-function cameraSet(gVec) //double[]
-{
-	// Clear our matrices
-	for (var i = 0; i < 16; i++)
-	{
-		mtrxProjection[i] = 0.0;
-		mtrxView[i] = 0.0;
-		mtrxProjectionAndView[i] = 0.0;
-	}
-	
-	var ceilDist = gVec[2] / gVec[0];
-
-	// Setup our screen width and height for normal sprite translation.
-	// Matrix.orthoM(mtrxProjection, 0, -mScreenWidth/2, mScreenWidth/2, -mScreenHeight/2, mScreenHeight/2, 0, 50);
-	Matrix.perspectiveM(mtrxProjection, 0, 40, mScreenWidth / mScreenHeight, 0.01, 50);
-
-	var cDist = -0.25;
-
-	var eyeX = cDist / ceilDist;
-	var eyeZ = cDist;
-	
-	// Set the camera position (View matrix)
-	Matrix.setLookAtM(mtrxView, 0, eyeX, 0, eyeZ, 0, 0, 0, 0, gVec[1], Math.sqrt(gVec[0] * gVec[0] + gVec[2] * gVec[2]));
-
-	// Calculate the projection and view transformation
-	Matrix.multiplyMM(mtrxProjectionAndView, 0, mtrxProjection, 0, mtrxView, 0);
-}
-
-function projectAngle(aa, d)
-{
-	var projected;
-
-	var a = (((aa + Math.PI) % ( 2 * Math.PI)) - Math.PI);
-
-	var Pi = Math.PI;
-
-	projected = (-1) * (Math.acos((-1) * Math.pow(((1) + Math.pow(d,(2))), (0.5)) * Math.sin(a) * Math.pow((Math.pow(d,(2)) * Math.pow(Math.cos(a), (2)) + Math.pow(Math.sin(a), (2)) + Math.pow(d,(2)) * Math.pow(Math.sin(a), (2))), (-0.5)))) * ((((-0.5) * Pi + Math.abs(a))) > 0 ? (1) : (-1));
-
-	return projected;
-}
-
-function wallsSet(a1, a2, aG, gVec)
-{
-	var aDelta = aG - Math.PI / 2;
-
-	var d = gVec[2] / gVec[0];
-	var pa1 = projectAngle(a1 - aDelta, d);
-	var pa2 = projectAngle(a2 - aDelta, d);
-
-	dir1[0] = Math.cos(pa1);
-	dir1[1] = Math.sin(pa1);
-	dir1[2] = 0.0;
-
-	dir2[0] = Math.cos(pa2);
-	dir2[1] = Math.sin(pa2);
-	dir2[2] = 0.0;
-}
-
-
-
-
-
 
 
 
@@ -485,9 +423,12 @@ function Tick()
 	//Animate(); //walking
 }
 
+var mesh = "ObjTest";
+
 function MainWebGL()
 {
 	var canvas = document.getElementById("webgl-canvas");
+	var mesh = OBJ.Mesh("assets\models\suzanne.obj");
 	InitGL(canvas);
 	InitShaders();
 	InitBuffers();
@@ -519,7 +460,7 @@ WebGL.InitApp = function (div)
 	canvas.setAttribute("height", div.offsetHeight);
 	
 	div.appendChild(canvas);
-	MainWebGL()
+	MainWebGL();
 }
 
 /**
@@ -593,4 +534,48 @@ WebGL.ClearImages = function ()
 	
 	delete ImagesArray;
 	this.ShowImage(0);
+}
+
+WebGL.LoadOBJ = function (url)
+{
+	XMLHttpRequestObject = new XMLHttpRequest();
+	
+	if(XMLHttpRequestObject)
+	{
+		XMLHttpRequestObject.open("GET", url);
+		XMLHttpRequestObject.onreadystatechange = function()
+		{
+			if(XMLHttpRequestObject.readyState == 4)
+			{
+				if(XMLHttpRequestObject.status == 200)
+				{
+					//var responseXML = XMLHttpRequestObject.responseXML;
+					var responseText = XMLHttpRequestObject.responseText;
+					WebGL.ReadModel(responseText);
+				}
+				delete XMLHttpRequestObject;
+				XMLHttpRequestObject = null;
+				//onEnd();
+			}
+		}
+		XMLHttpRequestObject.send(null);
+	}
+}
+
+WebGL.ReadModel = function (ObjectData)
+{
+	mesh = new OBJ.Mesh(ObjectData);
+	
+	/*
+	console.log("vertices:");
+	console.log(mesh.vertices);
+	console.log("vertexNormals:");
+	console.log(mesh.vertexNormals);
+	console.log("textures:");
+	console.log(mesh.textures);
+	console.log("indices:");
+	console.log(mesh.indices);
+	*/
+	
+	OBJ.initMeshBuffers(gl, mesh);
 }

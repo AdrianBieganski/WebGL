@@ -3,15 +3,15 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>WebGL - Mouldings Camera Test</title>
-<!--<script type="text/javascript" src="scripts/glMatrix-0.9.5.js"></script>-->
 
-<!--<script type="text/javascript" src="scripts/matrix.js"></script>
+<script type="text/javascript" src="scripts/matrix.js"></script>
 <script type="text/javascript" src="scripts/webgl-utils.js"></script>
+<script type="text/javascript" src="scripts/webgl-obj-loader.js"></script>
 <script type="text/javascript" src="scripts/buffers.js"></script>
 <script type="text/javascript" src="scripts/models.js"></script>
-<script type="text/javascript" src="scripts/main.js"></script>-->
+<script type="text/javascript" src="scripts/main.js"></script>
 
-<script type="text/javascript" src="min/ugly.js"></script>
+<!--<script type="text/javascript" src="min/ugly.js"></script>-->
 </head>
 <body>
 <div id="canvas" style="height: 640px"></div>
@@ -22,8 +22,6 @@ WebGL.PosX(-0.1);
 WebGL.PosZ(0.5);
 WebGL.RotateX(60);
 WebGL.RotateY(-86);
-
-
 
 var image1 = new Image();
 image1.src = "assets/img/sphere.png";
@@ -56,6 +54,8 @@ var image4 = new Image();
 image4.src = "assets/img/Tapetka.jpg";
 image4.width = 1024;
 image4.height = 768;
+
+WebGL.LoadOBJ("assets/models/teapot.obj");
 </script>
 
 <h2>Model color:</h2>

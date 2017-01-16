@@ -75,6 +75,56 @@ function DrawModel(model_id)
 	gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 }
 
+function DrawOBJ()
+{
+	if (mesh.vertexBuffer != undefined)
+	{
+		// now to render the mesh
+		gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vertexBuffer);
+		gl.vertexAttribPointer(shaderProgramLight.vertexPositionAttribute, mesh.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+		// it's possible that the mesh doesn't contain
+		// any texture coordinates (e.g. suzanne.obj in the development branch).
+		// in this case, the texture vertexAttribArray will need to be disabled
+		// before the call to drawElements
+		
+		/*
+		if(!mesh.textures.length)
+		{
+			gl.disableVertexAttribArray(shaderProgramLight.textureCoordAttribute);
+		}
+		else
+		{
+			// if the texture vertexAttribArray has been previously
+			// disabled, then it needs to be re-enabled
+			gl.enableVertexAttribArray(shaderProgramLight.textureCoordAttribute);
+			gl.bindBuffer(gl.ARRAY_BUFFER, mesh.textureBuffer);
+			gl.vertexAttribPointer(shaderProgramLight.textureCoordAttribute, mesh.textureBuffer.itemSize, gl.FLOAT, false, 0, 0);
+		}*/
+		
+		gl.bindBuffer(gl.ARRAY_BUFFER, mesh.normalBuffer);
+		gl.vertexAttribPointer(shaderProgramLight.vertexNormalAttribute, mesh.normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+		
+		gl.uniform1i(shaderProgramLight.samplerUniform, 0);
+		
+		gl.uniform3f(shaderProgramLight.ambientColorUniform, 0.2, 0.2, 0.2);
+		var lightingDirection = [-0.25, -0.25, -1.0];
+		var adjustedLD = new Float32Array(3);
+		Vector3.Normalize(lightingDirection, adjustedLD);
+		Vector3.Scale(adjustedLD, -1);
+		gl.uniform3fv(shaderProgramLight.lightingDirectionUniform, adjustedLD);
+		gl.uniform3f(shaderProgramLight.directionalColorUniform, 0.2, 0.2, 0.5);
+		
+		gl.uniform4fv(shaderProgramLight.vertexColorUniform, ModelColor);
+		
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, mesh.indexBuffer);
+		setMatrixUniforms(shaderProgramLight);
+		
+		gl.drawElements(gl.TRIANGLES, mesh.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+		
+		//console.log("DrawOBJ");
+	}
+}
+
 function DrawBackground()
 {
 	gl.bindBuffer(gl.ARRAY_BUFFER, backgroundPositionBuffer);
@@ -119,6 +169,13 @@ function DrawScene()
 	Matrix.rotateM(mvMatrix, 0, degToRad(-yaw), 0, 1, 0);
 	
 	Matrix.translateM(mvMatrix, 0, -xPos, -yPos, -zPos);
+	
+	mvPushMatrix();
+		Matrix.translateM(mvMatrix, 0, 1.2, 0, -3);
+		Matrix.scaleM(mvMatrix, 0, 0.4, 0.4, 0.4); //(m, mOffset, x, y, z, sm, smOffset)
+		DrawOBJ();
+	mvPopMatrix();
+	
 	Matrix.translateM(mvMatrix, 0, -2, 0.5, -3);
 	
 	mvPushMatrix();
