@@ -75,7 +75,7 @@ function DrawModel(model_id)
 	gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 }
 
-function DrawOBJ()
+function DrawOBJ(mesh, modelColor)
 {
 	if (mesh.vertexBuffer != undefined)
 	{
@@ -112,9 +112,9 @@ function DrawOBJ()
 		Vector3.Normalize(lightingDirection, adjustedLD);
 		Vector3.Scale(adjustedLD, -1);
 		gl.uniform3fv(shaderProgramLight.lightingDirectionUniform, adjustedLD);
-		gl.uniform3f(shaderProgramLight.directionalColorUniform, 0.2, 0.2, 0.5);
+		gl.uniform3f(shaderProgramLight.directionalColorUniform, 0.8, 0.8, 0.8);
 		
-		gl.uniform4fv(shaderProgramLight.vertexColorUniform, ModelColor);
+		gl.uniform4fv(shaderProgramLight.vertexColorUniform, modelColor);
 		
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, mesh.indexBuffer);
 		setMatrixUniforms(shaderProgramLight);
@@ -173,7 +173,18 @@ function DrawScene()
 	mvPushMatrix();
 		Matrix.translateM(mvMatrix, 0, 1.2, 0, -3);
 		Matrix.scaleM(mvMatrix, 0, 0.4, 0.4, 0.4); //(m, mOffset, x, y, z, sm, smOffset)
-		DrawOBJ();
+		
+		for (var i = 0; i < WebGL.ModelsArray.length; i++)
+		{
+			if (WebGL.ModelsArray[i].obj != undefined)
+			{
+				mvPushMatrix();
+					Matrix.translateM(mvMatrix, 0, WebGL.ModelsArray[i].position.x, WebGL.ModelsArray[i].position.y, WebGL.ModelsArray[i].position.z);
+					DrawOBJ(WebGL.ModelsArray[i].obj, WebGL.ModelsArray[i].color);
+				mvPopMatrix();
+			}
+		}
+		
 	mvPopMatrix();
 	
 	Matrix.translateM(mvMatrix, 0, -2, 0.5, -3);

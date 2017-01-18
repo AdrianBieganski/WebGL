@@ -55,24 +55,31 @@ image4.src = "assets/img/Tapetka.jpg";
 image4.width = 1024;
 image4.height = 768;
 
-WebGL.LoadOBJ("assets/models/teapot.obj");
+WebGL.SetModel(0, "assets/models/lamp2.obj");
+WebGL.SetModel(1, "assets/models/teapot.obj");
+WebGL.LoadModels();
 </script>
 
-<h2>Model color:</h2>
-<table style="border: 0; padding: 10px;">
-<tr>
-<td><input type="button" id="ColorButton" value="Change Model Color" onClick="WebGL.ModelColor([255, 127, 127, 255]);" /></td>
-<td><input type="button" id="TextureButton1" value="Set image 1" onClick="WebGL.SetImage(1, image1);" /></td>
-<td><input type="button" id="TextureButton2" value="Set image 2" onClick="WebGL.SetImage(2, image2);" /></td>
-<td><input type="button" id="TextureButton3" value="Set image 3" onClick="WebGL.SetImage(3, image3);" /></td>
-<td><input type="button" id="TextureButton4" value="Set other image 3" onClick="WebGL.SetImage(3, image4);" /></td>
-<td><input type="button" id="TextureButton5" value="Show image 1" onClick="WebGL.ShowImage(1);" /></td>
-<td><input type="button" id="TextureButton6" value="Show image 2" onClick="WebGL.ShowImage(2);" /></td>
-<td><input type="button" id="TextureButton7" value="Show image 3" onClick="WebGL.ShowImage(3);" /></td>
-<td><input type="button" id="CheckImages" value="CheckImages" onClick="WebGL.CheckImages();" /></td>
-<td><input type="button" id="ClearImages" value="ClearImages" onClick="WebGL.ClearImages();" /></td>
-</tr>
-</table>
+<h3>Background methods:</h3>
+<input type="button" id="TextureButton1" value="Set image 1" onClick="WebGL.SetImage(1, image1);" />
+<input type="button" id="TextureButton2" value="Set image 2" onClick="WebGL.SetImage(2, image2);" />
+<input type="button" id="TextureButton3" value="Set image 3" onClick="WebGL.SetImage(3, image3);" />
+<input type="button" id="TextureButton4" value="Set other image 3" onClick="WebGL.SetImage(3, image4);" />
+<input type="button" id="TextureButton5" value="Show image 1" onClick="WebGL.ShowImage(1);" />
+<input type="button" id="TextureButton6" value="Show image 2" onClick="WebGL.ShowImage(2);" />
+<input type="button" id="TextureButton7" value="Show image 3" onClick="WebGL.ShowImage(3);" />
+<input type="button" id="CheckImages" value="CheckImages" onClick="WebGL.CheckImages();" />
+<input type="button" id="ClearImages" value="ClearImages" onClick="WebGL.ClearImages();" />
+<h3>Models methods:</h3>
+<input type="button" id="ColorButton" value="Change Mouldings Color" onClick="WebGL.ModelColor([255, 127, 127, 255]);" />
+<input type="button" id="SetModel1" value="Set Model 1" onClick="WebGL.SetModel(1, 'assets/models/lamp2.obj');" disabled/>
+<input type="button" id="SetModel2" value="Set Model 2" onClick="WebGL.SetModel(2, 'assets/models/teapot.obj');" disabled/>
+<input type="button" id="CheckModels" value="CheckModels" onClick="WebGL.CheckModels();" />
+<input type="button" id="ClearModels" value="ClearModels" onClick="WebGL.ClearModels();" />
+<input type="button" id="ColorButton2" value="Move Teapot" onClick="WebGL.SetModelPosition(1, [-2, 0, 0]);" />
+<input type="button" id="ColorButton2" value="Lamp Color" onClick="WebGL.SetModelColor(0, [127, 127, 255, 255]);" />
+<input type="button" id="ColorButton2" value="Teapot Color" onClick="WebGL.SetModelColor(1, [255, 127, 127, 255]);" />
+
 
 </body>
 </html>

@@ -25,7 +25,7 @@ function loadShader(path)
 	
 	request.onreadystatechange = function ()
 	{
-		if (request.readyState == 4)
+		if (request.readyState == 4 && request.status == 200)
 		{
 			alert (request.responseText);
 			return request.responseText;
@@ -218,8 +218,6 @@ function InitTexture()
 	BackgroundTexture = gl.createTexture();
 }
 
-var ImagesArray = [];
-
 function SetTextureImage(id, image)
 {
 	var canvas = document.createElement("canvas");
@@ -243,7 +241,7 @@ function SetTextureImage(id, image)
 		ctx.drawImage(image, ((canvas.height - width) / 2), 0, width, canvas.height);
 	}
 	
-	if (ImagesArray[id] == undefined)
+	if (WebGL.ImagesArray[id] == undefined)
 	{
 		var texture = gl.createTexture();
 		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
@@ -254,12 +252,12 @@ function SetTextureImage(id, image)
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 		gl.bindTexture(gl.TEXTURE_2D, null);
 		
-		ImagesArray[id] = texture;
+		WebGL.ImagesArray[id] = texture;
 		console.log("New id has created.");
 	}
 	else
 	{
-		gl.bindTexture(gl.TEXTURE_2D, ImagesArray[id]);
+		gl.bindTexture(gl.TEXTURE_2D, WebGL.ImagesArray[id]);
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -270,9 +268,9 @@ function SetTextureImage(id, image)
 
 function ShowTextureImage(id)
 {
-	if (ImagesArray[id] != undefined)
+	if (WebGL.ImagesArray[id] != null)
 	{
-		BackgroundTexture = ImagesArray[id];
+		BackgroundTexture = WebGL.ImagesArray[id];
 		console.log("Background changed.");
 	}
 	else
@@ -420,15 +418,12 @@ function Tick()
 	requestAnimFrame(Tick);
 	HandleKeys();
 	DrawScene();
-	//Animate(); //walking
+	Animate(); //walking
 }
-
-var mesh = "ObjTest";
 
 function MainWebGL()
 {
 	var canvas = document.getElementById("webgl-canvas");
-	var mesh = OBJ.Mesh("assets\models\suzanne.obj");
 	InitGL(canvas);
 	InitShaders();
 	InitBuffers();
@@ -447,6 +442,20 @@ function MainWebGL()
 * @param {object} div - The reference for div object, where application will draw canvas window.
 */
 var WebGL = {};
+
+WebGL.ImagesArray = [];
+WebGL.ModelsArray = [];
+
+var Model = function (url)
+{
+	this.url = url;
+	this.obj;
+	this.position = function(){this.position.x = 0; this.position.y = 0; this.position.z = 0;};
+	this.position();
+	this.rotation;
+	this.scale;
+	this.color = [0.5, 0.5, 0.5, 1];
+}
 
 /**
 * Init WebGL application.
@@ -487,15 +496,10 @@ WebGL.RotateY = function (angle)
 	pitch = angle + 90;
 }
 
-WebGL.ModelColor = function (color)
+WebGL.ModelColor = function (color) // do usunięcia
 {
 	ModelColor = color;
-	ModelColor = [Convert(color[0]), Convert(color[1]), Convert(color[2]), Convert(color[3])];
-	
-	function Convert (color)
-	{
-		return color / 255;
-	}
+	ModelColor = [this._ConvertColor(color[0]), this._ConvertColor(color[1]), this._ConvertColor(color[2]), this._ConvertColor(color[3])];
 }
 
 WebGL.Background = function (image)
@@ -515,11 +519,11 @@ WebGL.ShowImage = function (id)
 
 WebGL.CheckImages = function ()
 {
-	//console.log(ImagesArray);
+	//console.log(WebGL.ImagesArray);
 	
-	for(i = 0; i < ImagesArray.length; i++)
+	for(i = 0; i < this.ImagesArray.length; i++)
 	{
-		console.log(ImagesArray[i]);
+		console.log(this.ImagesArray[i]);
 	}
 }
 
@@ -527,55 +531,182 @@ WebGL.ClearImages = function ()
 {
 	console.log("ClearImages");
 	
-	for(i = 0; i < ImagesArray.length; i++)
+	for(i = 0; i < this.ImagesArray.length; i++)
 	{
-		delete ImagesArray[i];
+		delete this.ImagesArray[i];
 	}
 	
-	delete ImagesArray;
+	this.ImagesArray = [];
 	this.ShowImage(0);
 }
 
-WebGL.LoadOBJ = function (url)
+/******************************************************************************/
+
+WebGL.SetModel = function (id, url)
 {
-	XMLHttpRequestObject = new XMLHttpRequest();
-	
-	if(XMLHttpRequestObject)
+	if (this.ModelsArray[id] == undefined)
+		this.ModelsArray[id] = new Model(url);
+}
+
+WebGL.LoadModels = function (ModelData, ModelsArrayCopy, ModelID) //wywolywać przy starcie aplikacji bez parametrów. OGRANICZENIE (wynika z funkcji shift() oraz zmiennej ModelID): metoda SetModel musi być wywoływana z ID'kami od zera w górę w poprawnej kolejności
+{	
+	if (ModelsArrayCopy == undefined) //wywołanie LoadModels przez użytkownika
 	{
-		XMLHttpRequestObject.open("GET", url);
-		XMLHttpRequestObject.onreadystatechange = function()
-		{
-			if(XMLHttpRequestObject.readyState == 4)
-			{
-				if(XMLHttpRequestObject.status == 200)
-				{
-					//var responseXML = XMLHttpRequestObject.responseXML;
-					var responseText = XMLHttpRequestObject.responseText;
-					WebGL.ReadModel(responseText);
-				}
-				delete XMLHttpRequestObject;
-				XMLHttpRequestObject = null;
-				//onEnd();
-			}
-		}
+		var ModelsArrayCopy = this.ModelsArray.slice(); //tworzenie kopii tablicy
+		ModelsArrayCopy.sort();
+	}
+	
+	if (ModelID == undefined)
+	{
+		var ModelID = 0;
+	}
+	
+	var Model = ModelsArrayCopy.shift();
+	
+	if (ModelData != undefined) //zwrócone przez ajax
+	{
+		this.ModelsArray[ModelID].obj = new OBJ.Mesh(ModelData); //zapisywanie załadowanych modeli do tablicy z właściwościami obiektów
+		OBJ.initMeshBuffers(gl, this.ModelsArray[ModelID].obj);
+		
+		ModelID++;
+	}
+	
+	if (Model != undefined) //kończenie wywołania ajaxa
+	{
+		XMLHttpRequestObject = new XMLHttpRequest();
+		//XMLHttpRequestObject.addEventListener("progress", updateProgress);
+		XMLHttpRequestObject.addEventListener("load", transferComplete);
+		XMLHttpRequestObject.addEventListener("error", transferFailed);
+		XMLHttpRequestObject.addEventListener("abort", transferCanceled);
+		
+		XMLHttpRequestObject.open("GET", Model.url, true);
 		XMLHttpRequestObject.send(null);
+		
+		function transferComplete(evt)
+		{
+			//console.log("The transfer is complete.");
+			WebGL.LoadModels(XMLHttpRequestObject.responseText, ModelsArrayCopy, ModelID);
+		}
+		
+		function transferFailed(evt)
+		{
+			console.log("An error occurred while transferring the file.");
+		}
+		
+		function transferCanceled(evt)
+		{
+			console.log("The transfer has been canceled by the user.");
+		}
 	}
 }
 
-WebGL.ReadModel = function (ObjectData)
+/*
+function Xtest (modelData, urlArr)
 {
-	mesh = new OBJ.Mesh(ObjectData);
+	var model = urlArr.shift();
+	
+	console.log(model);
+	modelArray.push(modelData);
+	
+	XMLHttpRequestObject = new XMLHttpRequest();
+	XMLHttpRequestObject.addEventListener("progress", updateProgress);
+	XMLHttpRequestObject.addEventListener("load", transferComplete);
+	XMLHttpRequestObject.addEventListener("error", transferFailed);
+	XMLHttpRequestObject.addEventListener("abort", transferCanceled);
+	
+	
+	XMLHttpRequestObject.open("GET", model, true);
+	XMLHttpRequestObject.send(null);
+	
+	function updateProgress (oEvent) {
+	  if (oEvent.lengthComputable) {
+		var percentComplete = oEvent.loaded / oEvent.total;
+		// ...
+	  } else {
+		// Unable to compute progress information since the total size is unknown
+	  }
+	}
+	
+	function transferComplete(evt) {
+	  console.log("The transfer is complete.");
+	  Xtest (XMLHttpRequestObject.responseText, urlArr);
+	}
+	
+	function transferFailed(evt) {
+	  console.log("An error occurred while transferring the file.");
+	}
+	
+	function transferCanceled(evt) {
+	  console.log("The transfer has been canceled by the user.");
+	}
+}
+
+var urlArray = ["assets/models/lamp.obj", "assets/models/lamp2.obj", "assets/models/teapot.obj"];
+var modelArray = [];
+Xtest("first", urlArray);
+console.log(urlArray);
+function CheckXtest(){console.log(urlArray);}
+*/
+
+WebGL._CheckModelID = function (id)
+{
+	if (this.ModelsArray[id] != undefined)
+		return true;
+	else
+		return false;
+}
+
+WebGL.SetModelPosition = function (id, position)
+{
+	if (this.ModelsArray[id] != undefined)
+	{
+		this.ModelsArray[id].position.x = position[0];
+		this.ModelsArray[id].position.y = position[1];
+		this.ModelsArray[id].position.z = position[2];
+	}	
+}
+
+WebGL._ConvertColor = function (color)
+{
+	return color / 255;
+}
+
+WebGL.SetModelColor = function (id, color)
+{
+	if (this.ModelsArray[id] != undefined)
+	{
+		this.ModelsArray[id].color = [this._ConvertColor(color[0]), this._ConvertColor(color[1]), this._ConvertColor(color[2]), this._ConvertColor(color[3])];
+	}	
+}
+
+WebGL._ReadModel = function (ObjectData, id)
+{
+	console.log(id);
+	
+	this.ModelsArray[id] = new OBJ.Mesh(ObjectData);	
+	OBJ.initMeshBuffers(gl, this.ModelsArray[id]);
+}
+
+WebGL.CheckModels = function ()
+{
+	console.log(this.ModelsArray);
 	
 	/*
-	console.log("vertices:");
-	console.log(mesh.vertices);
-	console.log("vertexNormals:");
-	console.log(mesh.vertexNormals);
-	console.log("textures:");
-	console.log(mesh.textures);
-	console.log("indices:");
-	console.log(mesh.indices);
+	for(i = 0; i < this.ModelsArray.length; i++)
+	{
+		console.log(this.ModelsArray[i]);
+	}
 	*/
+}
+
+WebGL.ClearModels = function ()
+{
+	console.log("ClearModels");
 	
-	OBJ.initMeshBuffers(gl, mesh);
+	for(i = 0; i < this.ModelsArray.length; i++)
+	{
+		delete this.ModelsArray[i];
+	}
+	
+	this.ModelsArray = [];
 }
