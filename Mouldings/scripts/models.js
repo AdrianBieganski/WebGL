@@ -172,14 +172,17 @@ function DrawScene()
 	
 	mvPushMatrix();
 		Matrix.translateM(mvMatrix, 0, 1.2, 0, -3);
-		Matrix.scaleM(mvMatrix, 0, 0.4, 0.4, 0.4); //(m, mOffset, x, y, z, sm, smOffset)
 		
 		for (var i = 0; i < WebGL.ModelsArray.length; i++)
 		{
-			if (WebGL.ModelsArray[i].obj != undefined)
+			if (WebGL.ModelsArray[i] != undefined && WebGL.ModelsArray[i].obj != undefined) //jesli obiekt model został utworzony oraz załadowany
 			{
 				mvPushMatrix();
 					Matrix.translateM(mvMatrix, 0, WebGL.ModelsArray[i].position.x, WebGL.ModelsArray[i].position.y, WebGL.ModelsArray[i].position.z);
+					Matrix.rotateM(mvMatrix, 0, degToRad(WebGL.ModelsArray[i].rotation.x), 1, 0, 0);
+					Matrix.rotateM(mvMatrix, 0, degToRad(WebGL.ModelsArray[i].rotation.y), 0, 1, 0);
+					Matrix.rotateM(mvMatrix, 0, degToRad(WebGL.ModelsArray[i].rotation.z), 0, 0, 1);
+					Matrix.scaleM(mvMatrix, 0, WebGL.ModelsArray[i].scale, WebGL.ModelsArray[i].scale, WebGL.ModelsArray[i].scale);
 					DrawOBJ(WebGL.ModelsArray[i].obj, WebGL.ModelsArray[i].color);
 				mvPopMatrix();
 			}

@@ -452,8 +452,9 @@ var Model = function (url)
 	this.obj;
 	this.position = function(){this.position.x = 0; this.position.y = 0; this.position.z = 0;};
 	this.position();
-	this.rotation;
-	this.scale;
+	this.rotation = function(){this.rotation.x = 0; this.rotation.y = 0; this.rotation.z = 0;};;
+	this.rotation();
+	this.scale = 1.0;
 	this.color = [0.5, 0.5, 0.5, 1];
 }
 
@@ -548,6 +549,15 @@ WebGL.SetModel = function (id, url)
 		this.ModelsArray[id] = new Model(url);
 }
 
+WebGL.AddModel = function (id, url)
+{
+	if (this.ModelsArray[id] == undefined)
+	{
+		this.ModelsArray[id] = new Model(url);
+		this._LoadOneModel(id);
+	}
+}
+
 WebGL.LoadModels = function (ModelData, ModelsArrayCopy, ModelID) //wywolywać przy starcie aplikacji bez parametrów. OGRANICZENIE (wynika z funkcji shift() oraz zmiennej ModelID): metoda SetModel musi być wywoływana z ID'kami od zera w górę w poprawnej kolejności
 {	
 	if (ModelsArrayCopy == undefined) //wywołanie LoadModels przez użytkownika
@@ -586,6 +596,42 @@ WebGL.LoadModels = function (ModelData, ModelsArrayCopy, ModelID) //wywolywać p
 		{
 			//console.log("The transfer is complete.");
 			WebGL.LoadModels(XMLHttpRequestObject.responseText, ModelsArrayCopy, ModelID);
+		}
+		
+		function transferFailed(evt)
+		{
+			console.log("An error occurred while transferring the file.");
+		}
+		
+		function transferCanceled(evt)
+		{
+			console.log("The transfer has been canceled by the user.");
+		}
+	}
+}
+
+WebGL._LoadOneModel = function (ModelID, ModelData)
+{	
+	if (ModelData != undefined) //zwrócone przez ajax
+	{
+		this.ModelsArray[ModelID].obj = new OBJ.Mesh(ModelData); //zapisywanie załadowanych modeli do tablicy z właściwościami obiektów
+		OBJ.initMeshBuffers(gl, this.ModelsArray[ModelID].obj);
+	}
+	else
+	{
+		XMLHttpRequestObject = new XMLHttpRequest();
+		//XMLHttpRequestObject.addEventListener("progress", updateProgress);
+		XMLHttpRequestObject.addEventListener("load", transferComplete);
+		XMLHttpRequestObject.addEventListener("error", transferFailed);
+		XMLHttpRequestObject.addEventListener("abort", transferCanceled);
+		
+		XMLHttpRequestObject.open("GET", WebGL.ModelsArray[ModelID].url, true);
+		XMLHttpRequestObject.send(null);
+		
+		function transferComplete(evt)
+		{
+			//console.log("The transfer is complete.");
+			WebGL._LoadOneModel(ModelID, XMLHttpRequestObject.responseText);
 		}
 		
 		function transferFailed(evt)
@@ -666,6 +712,24 @@ WebGL.SetModelPosition = function (id, position)
 	}	
 }
 
+WebGL.SetModelRotation = function (id, rotation)
+{
+	if (this.ModelsArray[id] != undefined)
+	{
+		this.ModelsArray[id].rotation.x = rotation[0];
+		this.ModelsArray[id].rotation.y = rotation[1];
+		this.ModelsArray[id].rotation.z = rotation[2];
+	}	
+}
+
+WebGL.SetModelScale = function (id, scale)
+{
+	if (this.ModelsArray[id] != undefined)
+	{
+		this.ModelsArray[id].scale = scale;
+	}	
+}
+
 WebGL._ConvertColor = function (color)
 {
 	return color / 255;
@@ -698,6 +762,14 @@ WebGL.CheckModels = function ()
 	}
 	*/
 }
+
+WebGL.RemoveModel = function (id)
+{
+	if (this.ModelsArray[id] != undefined)
+		delete this.ModelsArray[id];
+}
+
+ //dodać zmienną visible, która określa czy obiekt jest widoczny czy nie, ale jest załadowany + metody show/hide
 
 WebGL.ClearModels = function ()
 {
