@@ -194,23 +194,6 @@ function InitShaders()
 	shaderProgramTexture.samplerUniform = gl.getUniformLocation(shaderProgramTexture, "uSampler");
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 var BackgroundTexture;
 
 function InitTexture()
@@ -418,7 +401,7 @@ function Tick()
 	requestAnimFrame(Tick);
 	HandleKeys();
 	DrawScene();
-	Animate(); //walking
+	//Animate(); //walking
 }
 
 function MainWebGL()
@@ -543,59 +526,31 @@ WebGL.ClearImages = function ()
 
 /******************************************************************************/
 
+WebGL._ModelInit = function(ModelData, id)
+{
+	WebGL.ModelsArray[id].obj = new OBJ.Mesh(ModelData); //zapisywanie załadowanych modeli do tablicy z właściwościami obiektów
+	OBJ.initMeshBuffers(gl, this.ModelsArray[id].obj);
+}
+
 WebGL.SetModel = function (id, url)
-{
-	if (this.ModelsArray[id] == undefined)
-		this.ModelsArray[id] = new Model(url);
-}
-
-WebGL.AddModel = function (id, url)
-{
-	if (this.ModelsArray[id] == undefined)
-	{
-		this.ModelsArray[id] = new Model(url);
-		this._LoadOneModel(id);
-	}
-}
-
-WebGL.LoadModels = function (ModelData, ModelsArrayCopy, ModelID) //wywolywać przy starcie aplikacji bez parametrów. OGRANICZENIE (wynika z funkcji shift() oraz zmiennej ModelID): metoda SetModel musi być wywoływana z ID'kami od zera w górę w poprawnej kolejności
 {	
-	if (ModelsArrayCopy == undefined) //wywołanie LoadModels przez użytkownika
+	if (this.ModelsArray[id] == undefined)
 	{
-		var ModelsArrayCopy = this.ModelsArray.slice(); //tworzenie kopii tablicy
-		ModelsArrayCopy.sort();
-	}
+		this.ModelsArray[id] = new Model(url);
 	
-	if (ModelID == undefined)
-	{
-		var ModelID = 0;
-	}
-	
-	var Model = ModelsArrayCopy.shift();
-	
-	if (ModelData != undefined) //zwrócone przez ajax
-	{
-		this.ModelsArray[ModelID].obj = new OBJ.Mesh(ModelData); //zapisywanie załadowanych modeli do tablicy z właściwościami obiektów
-		OBJ.initMeshBuffers(gl, this.ModelsArray[ModelID].obj);
-		
-		ModelID++;
-	}
-	
-	if (Model != undefined) //kończenie wywołania ajaxa
-	{
-		XMLHttpRequestObject = new XMLHttpRequest();
+		var XMLHttpRequestObject = new XMLHttpRequest();
 		//XMLHttpRequestObject.addEventListener("progress", updateProgress);
 		XMLHttpRequestObject.addEventListener("load", transferComplete);
 		XMLHttpRequestObject.addEventListener("error", transferFailed);
 		XMLHttpRequestObject.addEventListener("abort", transferCanceled);
 		
-		XMLHttpRequestObject.open("GET", Model.url, true);
+		XMLHttpRequestObject.open("GET", url, true);
 		XMLHttpRequestObject.send(null);
 		
 		function transferComplete(evt)
 		{
 			//console.log("The transfer is complete.");
-			WebGL.LoadModels(XMLHttpRequestObject.responseText, ModelsArrayCopy, ModelID);
+			WebGL._ModelInit(XMLHttpRequestObject.responseText, id);
 		}
 		
 		function transferFailed(evt)
@@ -609,90 +564,6 @@ WebGL.LoadModels = function (ModelData, ModelsArrayCopy, ModelID) //wywolywać p
 		}
 	}
 }
-
-WebGL._LoadOneModel = function (ModelID, ModelData)
-{	
-	if (ModelData != undefined) //zwrócone przez ajax
-	{
-		this.ModelsArray[ModelID].obj = new OBJ.Mesh(ModelData); //zapisywanie załadowanych modeli do tablicy z właściwościami obiektów
-		OBJ.initMeshBuffers(gl, this.ModelsArray[ModelID].obj);
-	}
-	else
-	{
-		XMLHttpRequestObject = new XMLHttpRequest();
-		//XMLHttpRequestObject.addEventListener("progress", updateProgress);
-		XMLHttpRequestObject.addEventListener("load", transferComplete);
-		XMLHttpRequestObject.addEventListener("error", transferFailed);
-		XMLHttpRequestObject.addEventListener("abort", transferCanceled);
-		
-		XMLHttpRequestObject.open("GET", WebGL.ModelsArray[ModelID].url, true);
-		XMLHttpRequestObject.send(null);
-		
-		function transferComplete(evt)
-		{
-			//console.log("The transfer is complete.");
-			WebGL._LoadOneModel(ModelID, XMLHttpRequestObject.responseText);
-		}
-		
-		function transferFailed(evt)
-		{
-			console.log("An error occurred while transferring the file.");
-		}
-		
-		function transferCanceled(evt)
-		{
-			console.log("The transfer has been canceled by the user.");
-		}
-	}
-}
-
-/*
-function Xtest (modelData, urlArr)
-{
-	var model = urlArr.shift();
-	
-	console.log(model);
-	modelArray.push(modelData);
-	
-	XMLHttpRequestObject = new XMLHttpRequest();
-	XMLHttpRequestObject.addEventListener("progress", updateProgress);
-	XMLHttpRequestObject.addEventListener("load", transferComplete);
-	XMLHttpRequestObject.addEventListener("error", transferFailed);
-	XMLHttpRequestObject.addEventListener("abort", transferCanceled);
-	
-	
-	XMLHttpRequestObject.open("GET", model, true);
-	XMLHttpRequestObject.send(null);
-	
-	function updateProgress (oEvent) {
-	  if (oEvent.lengthComputable) {
-		var percentComplete = oEvent.loaded / oEvent.total;
-		// ...
-	  } else {
-		// Unable to compute progress information since the total size is unknown
-	  }
-	}
-	
-	function transferComplete(evt) {
-	  console.log("The transfer is complete.");
-	  Xtest (XMLHttpRequestObject.responseText, urlArr);
-	}
-	
-	function transferFailed(evt) {
-	  console.log("An error occurred while transferring the file.");
-	}
-	
-	function transferCanceled(evt) {
-	  console.log("The transfer has been canceled by the user.");
-	}
-}
-
-var urlArray = ["assets/models/lamp.obj", "assets/models/lamp2.obj", "assets/models/teapot.obj"];
-var modelArray = [];
-Xtest("first", urlArray);
-console.log(urlArray);
-function CheckXtest(){console.log(urlArray);}
-*/
 
 WebGL._CheckModelID = function (id)
 {
@@ -781,65 +652,4 @@ WebGL.ClearModels = function ()
 	}
 	
 	this.ModelsArray = [];
-}
-
-/*
-
-SetModel(id, url, callback)
-{
-	wywołuje ajaxa, ktory zwraca wartosc jako callback
-}
-
-*/
-
-WebGL._ModelInit = function(ModelData, id)
-{
-	console.log("_ModelInit " + id);
-	console.log(ModelData);
-	
-	/*
-	this.ModelsArray[ModelID].obj = new OBJ.Mesh(ModelData); //zapisywanie załadowanych modeli do tablicy z właściwościami obiektów
-	OBJ.initMeshBuffers(gl, this.ModelsArray[ModelID].obj);
-	*/
-}
-
-WebGL.SetModel2 = function (id, url, callback)
-{	
-	if (typeof callback !== 'function')
-	{
-		callback = false;
-	}
-	
-	if (callback)
-	{
-		callback(); //	
-	}
-	
-	
-	
-	
-	XMLHttpRequestObject = new XMLHttpRequest();
-	//XMLHttpRequestObject.addEventListener("progress", updateProgress);
-	XMLHttpRequestObject.addEventListener("load", transferComplete);
-	XMLHttpRequestObject.addEventListener("error", transferFailed);
-	XMLHttpRequestObject.addEventListener("abort", transferCanceled);
-	
-	XMLHttpRequestObject.open("GET", url, true);
-	XMLHttpRequestObject.send(null);
-	
-	function transferComplete(evt)
-	{
-		//console.log("The transfer is complete.");
-		WebGL._ModelInit(XMLHttpRequestObject.responseText, id);
-	}
-	
-	function transferFailed(evt)
-	{
-		console.log("An error occurred while transferring the file.");
-	}
-	
-	function transferCanceled(evt)
-	{
-		console.log("The transfer has been canceled by the user.");
-	}
 }

@@ -112,7 +112,7 @@ function DrawOBJ(mesh, modelColor)
 		Vector3.Normalize(lightingDirection, adjustedLD);
 		Vector3.Scale(adjustedLD, -1);
 		gl.uniform3fv(shaderProgramLight.lightingDirectionUniform, adjustedLD);
-		gl.uniform3f(shaderProgramLight.directionalColorUniform, 0.8, 0.8, 0.8);
+		gl.uniform3f(shaderProgramLight.directionalColorUniform, 0.2, 0.2, 0.2);
 		
 		gl.uniform4fv(shaderProgramLight.vertexColorUniform, modelColor);
 		
@@ -190,6 +190,7 @@ function DrawScene()
 		
 	mvPopMatrix();
 	
+	/*
 	Matrix.translateM(mvMatrix, 0, -2, 0.5, -3);
 	
 	mvPushMatrix();
@@ -200,4 +201,5 @@ function DrawScene()
 		Matrix.translateM(mvMatrix, 0, -0.5, 0, 0.4);
 		DrawModel(2);
 	mvPopMatrix();
+	*/
 }

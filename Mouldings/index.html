@@ -55,14 +55,8 @@ image4.src = "assets/img/Tapetka.jpg";
 image4.width = 1024;
 image4.height = 768;
 
-/*
 WebGL.SetModel(0, "assets/models/lamp2.obj");
 WebGL.SetModel(1, "assets/models/teapot.obj");
-WebGL.LoadModels();
-*/
-
-WebGL.SetModel2(7, "assets/models/teapot.obj");
-WebGL.SetModel2(8, "assets/models/lamp2.obj");
 
 WebGL.SetModelColor(0, [127, 255, 127, 255]);
 WebGL.SetModelScale(0, 0.2);
@@ -81,8 +75,8 @@ WebGL.SetModelScale(1, 0.4);
 <input type="button" id="ClearImages" value="ClearImages" onClick="WebGL.ClearImages();" />
 <h3>Models methods:</h3>
 <input type="button" id="ColorButton" value="Change Mouldings Color" onClick="WebGL.ModelColor([255, 127, 127, 255]);" />
-<input type="button" id="SetModel1" value="Set Model 1" onClick="WebGL.AddModel(5, 'assets/models/lamp2.obj'); WebGL.SetModelPosition(5, [1, 0, 0]); WebGL.SetModelScale(5, 0.2);" />
-<input type="button" id="SetModel2" value="Set Model 2" onClick="WebGL.AddModel(4, 'assets/models/teapot.obj'); WebGL.SetModelPosition(4, [1.5, 0, 0]);" />
+<input type="button" id="SetModel1" value="Set Model 1" onClick="WebGL.SetModel(5, 'assets/models/lamp2.obj'); WebGL.SetModelPosition(5, [1, 0, 0]); WebGL.SetModelScale(5, 0.2);" />
+<input type="button" id="SetModel2" value="Set Model 2" onClick="WebGL.SetModel(4, 'assets/models/teapot.obj'); WebGL.SetModelPosition(4, [1.5, 0, 0]);" />
 <input type="button" id="CheckModels" value="CheckModels" onClick="WebGL.CheckModels();" />
 <input type="button" id="ColorButton2" value="Move Teapot" onClick="WebGL.SetModelPosition(1, [-1, 0, 0]);" />
 <input type="button" id="ColorButton2" value="Lamp Color" onClick="WebGL.SetModelColor(0, [127, 127, 255, 255]);" />
