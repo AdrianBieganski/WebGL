@@ -782,3 +782,64 @@ WebGL.ClearModels = function ()
 	
 	this.ModelsArray = [];
 }
+
+/*
+
+SetModel(id, url, callback)
+{
+	wywołuje ajaxa, ktory zwraca wartosc jako callback
+}
+
+*/
+
+WebGL._ModelInit = function(ModelData, id)
+{
+	console.log("_ModelInit " + id);
+	console.log(ModelData);
+	
+	/*
+	this.ModelsArray[ModelID].obj = new OBJ.Mesh(ModelData); //zapisywanie załadowanych modeli do tablicy z właściwościami obiektów
+	OBJ.initMeshBuffers(gl, this.ModelsArray[ModelID].obj);
+	*/
+}
+
+WebGL.SetModel2 = function (id, url, callback)
+{	
+	if (typeof callback !== 'function')
+	{
+		callback = false;
+	}
+	
+	if (callback)
+	{
+		callback(); //	
+	}
+	
+	
+	
+	
+	XMLHttpRequestObject = new XMLHttpRequest();
+	//XMLHttpRequestObject.addEventListener("progress", updateProgress);
+	XMLHttpRequestObject.addEventListener("load", transferComplete);
+	XMLHttpRequestObject.addEventListener("error", transferFailed);
+	XMLHttpRequestObject.addEventListener("abort", transferCanceled);
+	
+	XMLHttpRequestObject.open("GET", url, true);
+	XMLHttpRequestObject.send(null);
+	
+	function transferComplete(evt)
+	{
+		//console.log("The transfer is complete.");
+		WebGL._ModelInit(XMLHttpRequestObject.responseText, id);
+	}
+	
+	function transferFailed(evt)
+	{
+		console.log("An error occurred while transferring the file.");
+	}
+	
+	function transferCanceled(evt)
+	{
+		console.log("The transfer has been canceled by the user.");
+	}
+}
