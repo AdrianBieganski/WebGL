@@ -532,7 +532,7 @@ WebGL._ModelInit = function(ModelData, id)
 	OBJ.initMeshBuffers(gl, this.ModelsArray[id].obj);
 }
 
-WebGL.SetModel = function (id, url)
+WebGL.SetModel = function (id, url, callback)
 {	
 	if (this.ModelsArray[id] == undefined)
 	{
@@ -551,6 +551,16 @@ WebGL.SetModel = function (id, url)
 		{
 			//console.log("The transfer is complete.");
 			WebGL._ModelInit(XMLHttpRequestObject.responseText, id);
+			
+			if(typeof callback !== 'function')
+			{
+				callback = false;
+			}
+			
+			if(callback)
+			{
+				callback();
+			}
 		}
 		
 		function transferFailed(evt)

@@ -2166,7 +2166,7 @@ function loadShader(path)
 	
 	request.onreadystatechange = function ()
 	{
-		if (request.readyState == 4)
+		if (request.readyState == 4 && request.status == 200)
 		{
 			alert (request.responseText);
 			return request.responseText;
@@ -2335,31 +2335,12 @@ function InitShaders()
 	shaderProgramTexture.samplerUniform = gl.getUniformLocation(shaderProgramTexture, "uSampler");
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 var BackgroundTexture;
 
 function InitTexture()
 {
 	BackgroundTexture = gl.createTexture();
 }
-
-var ImagesArray = [];
 
 function SetTextureImage(id, image)
 {
@@ -2384,7 +2365,7 @@ function SetTextureImage(id, image)
 		ctx.drawImage(image, ((canvas.height - width) / 2), 0, width, canvas.height);
 	}
 	
-	if (ImagesArray[id] == undefined)
+	if (WebGL.ImagesArray[id] == undefined)
 	{
 		var texture = gl.createTexture();
 		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
@@ -2395,12 +2376,12 @@ function SetTextureImage(id, image)
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 		gl.bindTexture(gl.TEXTURE_2D, null);
 		
-		ImagesArray[id] = texture;
+		WebGL.ImagesArray[id] = texture;
 		console.log("New id has created.");
 	}
 	else
 	{
-		gl.bindTexture(gl.TEXTURE_2D, ImagesArray[id]);
+		gl.bindTexture(gl.TEXTURE_2D, WebGL.ImagesArray[id]);
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -2411,9 +2392,9 @@ function SetTextureImage(id, image)
 
 function ShowTextureImage(id)
 {
-	if (ImagesArray[id] != undefined)
+	if (WebGL.ImagesArray[id] != null)
 	{
-		BackgroundTexture = ImagesArray[id];
+		BackgroundTexture = WebGL.ImagesArray[id];
 		console.log("Background changed.");
 	}
 	else
@@ -2564,12 +2545,9 @@ function Tick()
 	//Animate(); //walking
 }
 
-var mesh = "ObjTest";
-
 function MainWebGL()
 {
 	var canvas = document.getElementById("webgl-canvas");
-	var mesh = OBJ.Mesh("assets\models\suzanne.obj");
 	InitGL(canvas);
 	InitShaders();
 	InitBuffers();
@@ -2588,6 +2566,21 @@ function MainWebGL()
 * @param {object} div - The reference for div object, where application will draw canvas window.
 */
 var WebGL = {};
+
+WebGL.ImagesArray = [];
+WebGL.ModelsArray = [];
+
+var Model = function (url)
+{
+	this.url = url;
+	this.obj;
+	this.position = function(){this.position.x = 0; this.position.y = 0; this.position.z = 0;};
+	this.position();
+	this.rotation = function(){this.rotation.x = 0; this.rotation.y = 0; this.rotation.z = 0;};;
+	this.rotation();
+	this.scale = 1.0;
+	this.color = [0.5, 0.5, 0.5, 1];
+}
 
 /**
 * Init WebGL application.
@@ -2628,15 +2621,10 @@ WebGL.RotateY = function (angle)
 	pitch = angle + 90;
 }
 
-WebGL.ModelColor = function (color)
+WebGL.ModelColor = function (color) // do usunięcia
 {
 	ModelColor = color;
-	ModelColor = [Convert(color[0]), Convert(color[1]), Convert(color[2]), Convert(color[3])];
-	
-	function Convert (color)
-	{
-		return color / 255;
-	}
+	ModelColor = [this._ConvertColor(color[0]), this._ConvertColor(color[1]), this._ConvertColor(color[2]), this._ConvertColor(color[3])];
 }
 
 WebGL.Background = function (image)
@@ -2656,11 +2644,11 @@ WebGL.ShowImage = function (id)
 
 WebGL.CheckImages = function ()
 {
-	//console.log(ImagesArray);
+	//console.log(WebGL.ImagesArray);
 	
-	for(i = 0; i < ImagesArray.length; i++)
+	for(i = 0; i < this.ImagesArray.length; i++)
 	{
-		console.log(ImagesArray[i]);
+		console.log(this.ImagesArray[i]);
 	}
 }
 
@@ -2668,57 +2656,153 @@ WebGL.ClearImages = function ()
 {
 	console.log("ClearImages");
 	
-	for(i = 0; i < ImagesArray.length; i++)
+	for(i = 0; i < this.ImagesArray.length; i++)
 	{
-		delete ImagesArray[i];
+		delete this.ImagesArray[i];
 	}
 	
-	delete ImagesArray;
+	this.ImagesArray = [];
 	this.ShowImage(0);
 }
 
-WebGL.LoadOBJ = function (url)
+/******************************************************************************/
+
+WebGL._ModelInit = function(ModelData, id)
 {
-	XMLHttpRequestObject = new XMLHttpRequest();
-	
-	if(XMLHttpRequestObject)
+	WebGL.ModelsArray[id].obj = new OBJ.Mesh(ModelData); //zapisywanie załadowanych modeli do tablicy z właściwościami obiektów
+	OBJ.initMeshBuffers(gl, this.ModelsArray[id].obj);
+}
+
+WebGL.SetModel = function (id, url, callback)
+{	
+	if (this.ModelsArray[id] == undefined)
 	{
-		XMLHttpRequestObject.open("GET", url);
-		XMLHttpRequestObject.onreadystatechange = function()
+		this.ModelsArray[id] = new Model(url);
+	
+		var XMLHttpRequestObject = new XMLHttpRequest();
+		//XMLHttpRequestObject.addEventListener("progress", updateProgress);
+		XMLHttpRequestObject.addEventListener("load", transferComplete);
+		XMLHttpRequestObject.addEventListener("error", transferFailed);
+		XMLHttpRequestObject.addEventListener("abort", transferCanceled);
+		
+		XMLHttpRequestObject.open("GET", url, true);
+		XMLHttpRequestObject.send(null);
+		
+		function transferComplete(evt)
 		{
-			if(XMLHttpRequestObject.readyState == 4)
+			//console.log("The transfer is complete.");
+			WebGL._ModelInit(XMLHttpRequestObject.responseText, id);
+			
+			if(typeof callback !== 'function')
 			{
-				if(XMLHttpRequestObject.status == 200)
-				{
-					//var responseXML = XMLHttpRequestObject.responseXML;
-					var responseText = XMLHttpRequestObject.responseText;
-					WebGL.ReadModel(responseText);
-				}
-				delete XMLHttpRequestObject;
-				XMLHttpRequestObject = null;
-				//onEnd();
+				callback = false;
+			}
+			
+			if(callback)
+			{
+				callback();
 			}
 		}
-		XMLHttpRequestObject.send(null);
+		
+		function transferFailed(evt)
+		{
+			console.log("An error occurred while transferring the file.");
+		}
+		
+		function transferCanceled(evt)
+		{
+			console.log("The transfer has been canceled by the user.");
+		}
 	}
 }
 
-WebGL.ReadModel = function (ObjectData)
+WebGL._CheckModelID = function (id)
 {
-	mesh = new OBJ.Mesh(ObjectData);
+	if (this.ModelsArray[id] != undefined)
+		return true;
+	else
+		return false;
+}
+
+WebGL.SetModelPosition = function (id, position)
+{
+	if (this.ModelsArray[id] != undefined)
+	{
+		this.ModelsArray[id].position.x = position[0];
+		this.ModelsArray[id].position.y = position[1];
+		this.ModelsArray[id].position.z = position[2];
+	}	
+}
+
+WebGL.SetModelRotation = function (id, rotation)
+{
+	if (this.ModelsArray[id] != undefined)
+	{
+		this.ModelsArray[id].rotation.x = rotation[0];
+		this.ModelsArray[id].rotation.y = rotation[1];
+		this.ModelsArray[id].rotation.z = rotation[2];
+	}	
+}
+
+WebGL.SetModelScale = function (id, scale)
+{
+	if (this.ModelsArray[id] != undefined)
+	{
+		this.ModelsArray[id].scale = scale;
+	}	
+}
+
+WebGL._ConvertColor = function (color)
+{
+	return color / 255;
+}
+
+WebGL.SetModelColor = function (id, color)
+{
+	if (this.ModelsArray[id] != undefined)
+	{
+		this.ModelsArray[id].color = [this._ConvertColor(color[0]), this._ConvertColor(color[1]), this._ConvertColor(color[2]), this._ConvertColor(color[3])];
+	}	
+}
+
+WebGL._ReadModel = function (ObjectData, id)
+{
+	console.log(id);
+	
+	this.ModelsArray[id] = new OBJ.Mesh(ObjectData);	
+	OBJ.initMeshBuffers(gl, this.ModelsArray[id]);
+}
+
+WebGL.CheckModels = function ()
+{
+	console.log(this.ModelsArray);
 	
 	/*
-	console.log("vertices:");
-	console.log(mesh.vertices);
-	console.log("vertexNormals:");
-	console.log(mesh.vertexNormals);
-	console.log("textures:");
-	console.log(mesh.textures);
-	console.log("indices:");
-	console.log(mesh.indices);
+	for(i = 0; i < this.ModelsArray.length; i++)
+	{
+		console.log(this.ModelsArray[i]);
+	}
 	*/
+}
+
+WebGL.RemoveModel = function (id)
+{
+	if (this.ModelsArray[id] != undefined)
+		delete this.ModelsArray[id];
+}
+
+ //dodać zmienną visible, która określa czy obiekt jest widoczny czy nie, ale jest załadowany + metody show/hide
+
+WebGL.ClearModels = function ()
+{
+	console.log("ClearModels");
 	
-	OBJ.initMeshBuffers(gl, mesh);
+	for(i = 0; i < this.ModelsArray.length; i++)
+	{
+		delete this.ModelsArray[i];
+	}
+	
+	this.ModelsArray = [];
 };
 
 /**
@@ -3854,7 +3938,7 @@ function DrawModel(model_id)
 	gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 }
 
-function DrawOBJ()
+function DrawOBJ(mesh, modelColor)
 {
 	if (mesh.vertexBuffer != undefined)
 	{
@@ -3891,9 +3975,9 @@ function DrawOBJ()
 		Vector3.Normalize(lightingDirection, adjustedLD);
 		Vector3.Scale(adjustedLD, -1);
 		gl.uniform3fv(shaderProgramLight.lightingDirectionUniform, adjustedLD);
-		gl.uniform3f(shaderProgramLight.directionalColorUniform, 0.2, 0.2, 0.5);
+		gl.uniform3f(shaderProgramLight.directionalColorUniform, 0.2, 0.2, 0.2);
 		
-		gl.uniform4fv(shaderProgramLight.vertexColorUniform, ModelColor);
+		gl.uniform4fv(shaderProgramLight.vertexColorUniform, modelColor);
 		
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, mesh.indexBuffer);
 		setMatrixUniforms(shaderProgramLight);
@@ -3951,10 +4035,25 @@ function DrawScene()
 	
 	mvPushMatrix();
 		Matrix.translateM(mvMatrix, 0, 1.2, 0, -3);
-		Matrix.scaleM(mvMatrix, 0, 0.4, 0.4, 0.4); //(m, mOffset, x, y, z, sm, smOffset)
-		DrawOBJ();
+		
+		for (var i = 0; i < WebGL.ModelsArray.length; i++)
+		{
+			if (WebGL.ModelsArray[i] != undefined && WebGL.ModelsArray[i].obj != undefined) //jesli obiekt model został utworzony oraz załadowany
+			{
+				mvPushMatrix();
+					Matrix.translateM(mvMatrix, 0, WebGL.ModelsArray[i].position.x, WebGL.ModelsArray[i].position.y, WebGL.ModelsArray[i].position.z);
+					Matrix.rotateM(mvMatrix, 0, degToRad(WebGL.ModelsArray[i].rotation.x), 1, 0, 0);
+					Matrix.rotateM(mvMatrix, 0, degToRad(WebGL.ModelsArray[i].rotation.y), 0, 1, 0);
+					Matrix.rotateM(mvMatrix, 0, degToRad(WebGL.ModelsArray[i].rotation.z), 0, 0, 1);
+					Matrix.scaleM(mvMatrix, 0, WebGL.ModelsArray[i].scale, WebGL.ModelsArray[i].scale, WebGL.ModelsArray[i].scale);
+					DrawOBJ(WebGL.ModelsArray[i].obj, WebGL.ModelsArray[i].color);
+				mvPopMatrix();
+			}
+		}
+		
 	mvPopMatrix();
 	
+	/*
 	Matrix.translateM(mvMatrix, 0, -2, 0.5, -3);
 	
 	mvPushMatrix();
@@ -3965,6 +4064,7 @@ function DrawScene()
 		Matrix.translateM(mvMatrix, 0, -0.5, 0, 0.4);
 		DrawModel(2);
 	mvPopMatrix();
+	*/
 };  var OBJ = {};
 
   OBJ.Mesh = function (objectData)
