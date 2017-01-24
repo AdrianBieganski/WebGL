@@ -37,7 +37,7 @@ function degToRad(degrees)
 	return degrees * Math.PI / 180;
 }
 
-function DrawModel(model_id)
+function DrawModel(model_id, ModelColor)
 {
 	if (model_id == 1)
 	{
@@ -190,9 +190,22 @@ function DrawScene()
 		
 	mvPopMatrix();
 	
-	/*
 	Matrix.translateM(mvMatrix, 0, -2, 0.5, -3);
 	
+	mvPushMatrix();
+		Matrix.translateM(mvMatrix, 0,3, 0, 0);
+		DrawModel(3, [1, 0, 0, 0.5]);
+		
+		Matrix.rotateM(mvMatrix, 0, degToRad(90), 0, 1, 0);
+		Matrix.translateM(mvMatrix, 0, -0.5, 0, 0.5);
+		DrawModel(3, [0, 1, 0, 0.5]);
+		
+		Matrix.rotateM(mvMatrix, 0, degToRad(90), 1, 0, 0);
+		Matrix.translateM(mvMatrix, 0, 0, -0.5, -0.5);
+		DrawModel(3, [0, 0, 1, 0.5]);
+	mvPopMatrix();
+	
+	/*
 	mvPushMatrix();
 		Matrix.translateM(mvMatrix, 0, 3, 0.45, 0);
 		DrawModel(2);
