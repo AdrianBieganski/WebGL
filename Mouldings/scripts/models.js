@@ -159,7 +159,7 @@ function DrawScene()
 	gl.disable(gl.DEPTH_TEST);
 	gl.useProgram(shaderProgramTexture);
 	
-	Matrix.translateM(wMatrix, 0, 0, 0, 0);
+	Matrix.translateM(wMatrix, 0, 0, 0, -3);
 	DrawBackground();
 	
 	/*******/
