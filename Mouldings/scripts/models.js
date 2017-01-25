@@ -1,9 +1,10 @@
 var worldVertexPositionBuffer = null;
 var worldVertexTextureCoordBuffer = null;
 
-var mvMatrix = new Float32Array(16);
+var mvMatrix = new Float32Array(16); //modelViewMatrix
 var mvMatrixStack = [];
-var pMatrix = new Float32Array(16);
+var pMatrix = new Float32Array(16); //perspectiveMatrix
+var wMatrix = new Float32Array(16); //worldMatrix
 
 function mvPushMatrix()
 {
@@ -25,6 +26,7 @@ function setMatrixUniforms(shaderProgram)
 {
 	gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
 	gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
+	gl.uniformMatrix4fv(shaderProgram.wMatrixUniform, false, wMatrix);
 	
 	var normalMatrix = new Float32Array(9);
 	Matrix.InverseToMat3(mvMatrix, normalMatrix);
@@ -71,6 +73,9 @@ function DrawModel(model_id, ModelColor)
 	gl.uniform4fv(shaderProgramLight.vertexColorUniform, ModelColor);
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer);
 	setMatrixUniforms(shaderProgramLight);
+	
+	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+	gl.enable(gl.BLEND);
 	
 	gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 }
@@ -147,31 +152,30 @@ function DrawScene()
 	gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	
+	Matrix.Identity(wMatrix);
+	Matrix.LookAt(mvMatrix, [-2, -0.5, 3], [0, 0, 0], [0, 1, 0]);
 	Matrix.perspectiveM(pMatrix, 0, 45, gl.viewportWidth / gl.viewportHeight, 0.1, 100);
-	Matrix.Identity(mvMatrix);
 	
 	gl.disable(gl.DEPTH_TEST);
 	gl.useProgram(shaderProgramTexture);
 	
-	mvPushMatrix();
-		Matrix.translateM(mvMatrix, 0, 0, 0, -3);
-		
-		//mat4.scale(mvMatrix, [(gl.viewportWidth * 0.0013), (gl.viewportHeight * 0.0013), 1.0]);
-		DrawBackground();
-	mvPopMatrix();
+	Matrix.translateM(wMatrix, 0, 0, 0, 0);
+	DrawBackground();
 	
 	/*******/
 	
 	gl.enable(gl.DEPTH_TEST);
 	gl.useProgram(shaderProgramLight);
 	
+	/*
 	Matrix.rotateM(mvMatrix, 0, degToRad(-pitch), 1, 0, 0);
 	Matrix.rotateM(mvMatrix, 0, degToRad(-yaw), 0, 1, 0);
 	
 	Matrix.translateM(mvMatrix, 0, -xPos, -yPos, -zPos);
+	*/
 	
 	mvPushMatrix();
-		Matrix.translateM(mvMatrix, 0, 1.2, 0, -3);
+		//Matrix.translateM(mvMatrix, 0, 1.2, 0, -3);
 		
 		for (var i = 0; i < WebGL.ModelsArray.length; i++)
 		{
@@ -190,19 +194,20 @@ function DrawScene()
 		
 	mvPopMatrix();
 	
-	Matrix.translateM(mvMatrix, 0, -2, 0.5, -3);
+	Matrix.scaleM(mvMatrix, 0, 2, 2, 2);
+	Matrix.translateM(mvMatrix, 0, -3, 0, -1);
 	
 	mvPushMatrix();
 		Matrix.translateM(mvMatrix, 0,3, 0, 0);
-		DrawModel(3, [1, 0, 0, 0.5]);
+		DrawModel(3, [1, 0, 0, 0.2]);
 		
 		Matrix.rotateM(mvMatrix, 0, degToRad(90), 0, 1, 0);
 		Matrix.translateM(mvMatrix, 0, -0.5, 0, 0.5);
-		DrawModel(3, [0, 1, 0, 0.5]);
+		DrawModel(3, [0, 1, 0, 0.2]);
 		
 		Matrix.rotateM(mvMatrix, 0, degToRad(90), 1, 0, 0);
 		Matrix.translateM(mvMatrix, 0, 0, -0.5, -0.5);
-		DrawModel(3, [0, 0, 1, 0.5]);
+		DrawModel(3, [0, 0, 1, 0.2]);
 	mvPopMatrix();
 	
 	/*

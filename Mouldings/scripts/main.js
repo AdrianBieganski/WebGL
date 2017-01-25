@@ -50,6 +50,7 @@ var LightVertexShader =
 "uniform vec4 uVertexColor;" +
 "uniform mat4 uMVMatrix;" +
 "uniform mat4 uPMatrix;" +
+"uniform mat4 uWMatrix;" +
 "uniform mat3 uNMatrix;" +
 "uniform vec3 uAmbientColor;" +
 "uniform vec3 uLightingDirection;" +
@@ -58,7 +59,7 @@ var LightVertexShader =
 "varying vec4 vColor;" +
 "void main(void)" +
 "{" +
-"gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);" +
+"gl_Position = uPMatrix * uWMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);" +
 "vec3 transformedNormal = uNMatrix * aVertexNormal;" +
 "float directionalLightWeighting = max(dot(transformedNormal, uLightingDirection), 0.0);" +
 "vLightWeighting = uAmbientColor + uDirectionalColor * directionalLightWeighting;" +
@@ -77,54 +78,14 @@ var TextureFragmentShader =
 var TextureVertexShader =
 "attribute vec3 aVertexPosition;" +
 "attribute vec2 aTextureCoord;" +
-"uniform mat4 uMVMatrix;" +
 "uniform mat4 uPMatrix;" +
+"uniform mat4 uWMatrix;" +
 "varying vec2 vTextureCoord;" +
 "void main(void)" +
 "{" +
-"gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);" +
+"gl_Position = uPMatrix * uWMatrix * vec4(aVertexPosition, 1.0);" +
 "vTextureCoord = aTextureCoord;" +
 "}"
-
-var MouldingsFragmentShader = 
-"precision mediump float;" +
-"uniform vec3 uFaceColor;" +
-"varying vec3 vNormal;" +
-"void main() {" +
-"float ambient = 0.5;" +
-"float diff = 0.3;" +
-"float fromB=0.15;" +
-"vec3 diffDir = vec3(sqrt(1.0-fromB*fromB),0.0,fromB);" +
-"float diffDot = diff*clamp(dot(diffDir,vNormal),0.0,1.0);" +
-"gl_FragColor = vec4((ambient+diffDot)*uFaceColor.rgb,1.0);" +
-"}";
-
-var MouldingsVertexShader = 
-"uniform    mat4        uMVPMatrix;" +
-"uniform    vec3       dir1;" +
-"uniform    vec3        dir2;" +
-"uniform    float        uIsRight;" +
-"uniform    float        mSize;" +
-"uniform    float        zDistance;" +
-"attribute  vec4        vPosition;" +
-"attribute  vec3        aNormal;" +
-"varying vec3 vNormal;" +
-"void main() {" +
-"vec3 mDir;" +
-"float sign;" +
-"if(uIsRight>0.5){" +
-"mDir = dir2;" +
-"sign = -1.0;" +
-"}else{" +
-"mDir = dir1;" +
-"sign = 1.0;" +
-"}" +
-"vec3 dirX = sign*vec3(-mDir.y,mDir.x,mDir.z);" +
-"vec3 dirY = mDir;" +
-"vNormal = aNormal;" +
-"vec3 vP =  ( mSize*vPosition.x*dirX+2.0*vPosition.y*dirY+mSize*vec3(0.0,0.0,-1.0)*vPosition.z);" +
-"gl_Position = uMVPMatrix * vec4(vP.x,vP.y,vP.z-zDistance,1.0);" +
-"}";
 
 function GetShader(type, value)
 {
@@ -140,7 +101,6 @@ function GetShader(type, value)
 	}
 	return shader;
 }
-
 
 var shaderProgramLight;
 var shaderProgramTexture;
@@ -169,6 +129,7 @@ function InitShaders()
 	
 	shaderProgramLight.pMatrixUniform = gl.getUniformLocation(shaderProgramLight, "uPMatrix");
 	shaderProgramLight.mvMatrixUniform = gl.getUniformLocation(shaderProgramLight, "uMVMatrix");
+	shaderProgramLight.wMatrixUniform = gl.getUniformLocation(shaderProgramLight, "uWMatrix");
 	shaderProgramLight.nMatrixUniform = gl.getUniformLocation(shaderProgramLight, "uNMatrix");
 	
 	shaderProgramLight.useLightingUniform = gl.getUniformLocation(shaderProgramLight, "uUseLighting");
@@ -190,7 +151,7 @@ function InitShaders()
 	gl.enableVertexAttribArray(shaderProgramTexture.textureCoordAttribute);
 	
 	shaderProgramTexture.pMatrixUniform = gl.getUniformLocation(shaderProgramTexture, "uPMatrix");
-	shaderProgramTexture.mvMatrixUniform = gl.getUniformLocation(shaderProgramTexture, "uMVMatrix");
+	shaderProgramTexture.wMatrixUniform = gl.getUniformLocation(shaderProgramTexture, "uWMatrix");
 	shaderProgramTexture.samplerUniform = gl.getUniformLocation(shaderProgramTexture, "uSampler");
 }
 
@@ -401,7 +362,7 @@ function Tick()
 	requestAnimFrame(Tick);
 	HandleKeys();
 	DrawScene();
-	//Animate(); //walking
+	Animate(); //walking
 }
 
 function MainWebGL()
@@ -440,6 +401,14 @@ var Model = function (url)
 	this.scale = 1.0;
 	this.color = [0.5, 0.5, 0.5, 1];
 }
+
+var Camera = function()
+{
+	this.eye = [0, 0, -3];
+	this.target = [0, 0, 0];
+	this.up = [0, 1, 0];
+}
+
 
 /**
 * Init WebGL application.
@@ -662,4 +631,11 @@ WebGL.ClearModels = function ()
 	}
 	
 	this.ModelsArray = [];
+}
+
+WebGL.Camera = function(eye, target, up)
+{
+	Camera.eye = eye;
+	Camera.target = target;
+	Camera.up = up;
 }
