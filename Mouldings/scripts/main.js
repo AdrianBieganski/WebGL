@@ -50,6 +50,7 @@ var LightVertexShader =
 "uniform vec4 uVertexColor;" +
 "uniform mat4 uMVMatrix;" +
 "uniform mat4 uPMatrix;" +
+"uniform mat4 uWMatrix;" +
 "uniform mat3 uNMatrix;" +
 "uniform vec3 uAmbientColor;" +
 "uniform vec3 uLightingDirection;" +
@@ -58,46 +59,12 @@ var LightVertexShader =
 "varying vec4 vColor;" +
 "void main(void)" +
 "{" +
-"gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);" +
+"gl_Position = uPMatrix * uWMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);" +
 "vec3 transformedNormal = uNMatrix * aVertexNormal;" +
 "float directionalLightWeighting = max(dot(transformedNormal, uLightingDirection), 0.0);" +
 "vLightWeighting = uAmbientColor + uDirectionalColor * directionalLightWeighting;" +
 "vColor = uVertexColor;" +
 "}";
-
-
-
-var WallsFragmentShader =
-"precision mediump float;" +
-"varying vec3 vLightWeighting;" +
-"varying vec4 vColor;" +
-"void main(void)" +
-"{" +
-"gl_FragColor = vec4(vLightWeighting, 1.0) * vColor;" +
-"}";
-
-var WallsVertexShader = 
-"attribute vec3 aVertexPosition;" +
-"attribute vec3 aVertexNormal;" +
-"uniform vec4 uVertexColor;" +
-"uniform mat4 uMVMatrix;" +
-"uniform mat4 uPMatrix;" +
-"uniform mat3 uNMatrix;" +
-"uniform vec3 uAmbientColor;" +
-"uniform vec3 uLightingDirection;" +
-"uniform vec3 uDirectionalColor;" +
-"varying vec3 vLightWeighting;" +
-"varying vec4 vColor;" +
-"void main(void)" +
-"{" +
-"gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);" +
-"vec3 transformedNormal = uNMatrix * aVertexNormal;" +
-"float directionalLightWeighting = max(dot(transformedNormal, uLightingDirection), 0.0);" +
-"vLightWeighting = uAmbientColor + uDirectionalColor * directionalLightWeighting;" +
-"vColor = uVertexColor;" +
-"}";
-
-
 
 var TextureFragmentShader =
 "precision mediump float;" +
@@ -112,10 +79,11 @@ var TextureVertexShader =
 "attribute vec3 aVertexPosition;" +
 "attribute vec2 aTextureCoord;" +
 "uniform mat4 uPMatrix;" +
+"uniform mat4 uWMatrix;" +
 "varying vec2 vTextureCoord;" +
 "void main(void)" +
 "{" +
-"gl_Position = uPMatrix * vec4(aVertexPosition, 1.0);" +
+"gl_Position = uPMatrix * uWMatrix * vec4(aVertexPosition, 1.0);" +
 "vTextureCoord = aTextureCoord;" +
 "}"
 
@@ -135,7 +103,6 @@ function GetShader(type, value)
 }
 
 var shaderProgramLight;
-var shaderProgramWalls;
 var shaderProgramTexture;
 
 function InitShaders()
@@ -162,47 +129,13 @@ function InitShaders()
 	
 	shaderProgramLight.pMatrixUniform = gl.getUniformLocation(shaderProgramLight, "uPMatrix");
 	shaderProgramLight.mvMatrixUniform = gl.getUniformLocation(shaderProgramLight, "uMVMatrix");
-	//shaderProgramLight.wMatrixUniform = gl.getUniformLocation(shaderProgramLight, "uWMatrix");
+	shaderProgramLight.wMatrixUniform = gl.getUniformLocation(shaderProgramLight, "uWMatrix");
 	shaderProgramLight.nMatrixUniform = gl.getUniformLocation(shaderProgramLight, "uNMatrix");
 	
 	shaderProgramLight.useLightingUniform = gl.getUniformLocation(shaderProgramLight, "uUseLighting");
 	shaderProgramLight.ambientColorUniform = gl.getUniformLocation(shaderProgramLight, "uAmbientColor");
 	shaderProgramLight.lightingDirectionUniform = gl.getUniformLocation(shaderProgramLight, "uLightingDirection");
 	shaderProgramLight.directionalColorUniform = gl.getUniformLocation(shaderProgramLight, "uDirectionalColor");
-	
-	/*****************************************************************************************************************/
-	
-	shaderProgramWalls = gl.createProgram();
-		
-	gl.attachShader(shaderProgramWalls, GetShader(gl.VERTEX_SHADER, WallsVertexShader));
-	gl.attachShader(shaderProgramWalls, GetShader(gl.FRAGMENT_SHADER, WallsFragmentShader));
-	
-	gl.linkProgram(shaderProgramWalls);
-	
-	if (!gl.getProgramParameter(shaderProgramWalls, gl.LINK_STATUS))
-	{
-		alert("Could not initialise shaders");
-	}
-	
-	shaderProgramWalls.vertexPositionAttribute = gl.getAttribLocation(shaderProgramWalls, "aVertexPosition");
-	gl.enableVertexAttribArray(shaderProgramWalls.vertexPositionAttribute);
-	
-	shaderProgramWalls.vertexNormalAttribute = gl.getAttribLocation(shaderProgramWalls, "aVertexNormal");
-	gl.enableVertexAttribArray(shaderProgramWalls.vertexNormalAttribute);
-	
-	shaderProgramWalls.vertexColorUniform = gl.getUniformLocation(shaderProgramWalls, "uVertexColor");
-	
-	shaderProgramWalls.pMatrixUniform = gl.getUniformLocation(shaderProgramWalls, "uPMatrix");
-	shaderProgramWalls.mvMatrixUniform = gl.getUniformLocation(shaderProgramWalls, "uMVMatrix");
-	//shaderProgramWalls.wMatrixUniform = gl.getUniformLocation(shaderProgramWalls, "uWMatrix");
-	shaderProgramWalls.nMatrixUniform = gl.getUniformLocation(shaderProgramWalls, "uNMatrix");
-	
-	shaderProgramWalls.useLightingUniform = gl.getUniformLocation(shaderProgramWalls, "uUseLighting");
-	shaderProgramWalls.ambientColorUniform = gl.getUniformLocation(shaderProgramWalls, "uAmbientColor");
-	shaderProgramWalls.lightingDirectionUniform = gl.getUniformLocation(shaderProgramWalls, "uLightingDirection");
-	shaderProgramWalls.directionalColorUniform = gl.getUniformLocation(shaderProgramWalls, "uDirectionalColor");
-	
-	/*****************************************************************************************************************/
 	
 	shaderProgramTexture = gl.createProgram();
 		
@@ -469,10 +402,11 @@ var Model = function (url)
 	this.color = [0.5, 0.5, 0.5, 1];
 }
 
-var Camera = {
-	eye: [0, 0, -3],
-	target: [0, 0, 0],
-	up: [0, 1, 0],
+var Camera = function()
+{
+	this.eye = [0, 0, -3];
+	this.target = [0, 0, 0];
+	this.up = [0, 1, 0];
 }
 
 

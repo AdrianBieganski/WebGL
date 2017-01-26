@@ -60,7 +60,7 @@ function DrawModel(model_id, ModelColor)
 	gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexNormalBuffer);
 	gl.vertexAttribPointer(shaderProgramLight.vertexNormalAttribute, cubeVertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
 	
-	gl.uniform1i(shaderProgramWalls.samplerUniform, 0);
+	gl.uniform1i(shaderProgramLight.samplerUniform, 0);
 	
 	gl.uniform3f(shaderProgramLight.ambientColorUniform, 0.2, 0.2, 0.2);
 	var lightingDirection = [-0.25, -0.25, -1.0];
@@ -153,13 +153,13 @@ function DrawScene()
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	
 	Matrix.Identity(wMatrix);
-	Matrix.LookAt(mvMatrix, Camera.eye, Camera.target, Camera.up);
+	Matrix.LookAt(mvMatrix, [-2, -0.5, 3], [0, 0, 0], [0, 1, 0]);
 	Matrix.perspectiveM(pMatrix, 0, 45, gl.viewportWidth / gl.viewportHeight, 0.1, 100);
 	
 	gl.disable(gl.DEPTH_TEST);
 	gl.useProgram(shaderProgramTexture);
 	
-	//Matrix.translateM(wMatrix, 0, 0, 0, 0);
+	Matrix.translateM(wMatrix, 0, 0, 0, -3);
 	DrawBackground();
 	
 	/*******/
@@ -168,27 +168,11 @@ function DrawScene()
 	gl.useProgram(shaderProgramLight);
 	
 	/*
-	//walking
 	Matrix.rotateM(mvMatrix, 0, degToRad(-pitch), 1, 0, 0);
 	Matrix.rotateM(mvMatrix, 0, degToRad(-yaw), 0, 1, 0);
 	
 	Matrix.translateM(mvMatrix, 0, -xPos, -yPos, -zPos);
 	*/
-	
-	//walls
-	mvPushMatrix();
-		Matrix.translateM(mvMatrix, 0, 0.5, -0.5, 0);
-		DrawModel(3, [1, 0, 0, 0.9]);
-		
-		Matrix.rotateM(mvMatrix, 0, degToRad(90), 0, 1, 0);
-		Matrix.translateM(mvMatrix, 0, 0.5, 0, -0.5);
-		DrawModel(3, [0, 1, 0, 0.9]);
-		
-		Matrix.rotateM(mvMatrix, 0, degToRad(90), 1, 0, 0);
-		Matrix.translateM(mvMatrix, 0, 0, 0.5, -0.5);
-		DrawModel(3, [0, 0, 1, 0.9]);
-	mvPopMatrix();
-	
 	
 	mvPushMatrix();
 		//Matrix.translateM(mvMatrix, 0, 1.2, 0, -3);
@@ -207,6 +191,23 @@ function DrawScene()
 				mvPopMatrix();
 			}
 		}
+		
+	mvPopMatrix();
+	
+	Matrix.scaleM(mvMatrix, 0, 2, 2, 2);
+	Matrix.translateM(mvMatrix, 0, -3, 0, -1);
+	
+	mvPushMatrix();
+		Matrix.translateM(mvMatrix, 0,3, 0, 0);
+		DrawModel(3, [1, 0, 0, 0.2]);
+		
+		Matrix.rotateM(mvMatrix, 0, degToRad(90), 0, 1, 0);
+		Matrix.translateM(mvMatrix, 0, -0.5, 0, 0.5);
+		DrawModel(3, [0, 1, 0, 0.2]);
+		
+		Matrix.rotateM(mvMatrix, 0, degToRad(90), 1, 0, 0);
+		Matrix.translateM(mvMatrix, 0, 0, -0.5, -0.5);
+		DrawModel(3, [0, 0, 1, 0.2]);
 	mvPopMatrix();
 	
 	/*
