@@ -467,6 +467,7 @@ var Model = function (url)
 	this.rotation();
 	this.scale = 1.0;
 	this.color = [0.5, 0.5, 0.5, 1];
+	this.boundingBox;
 }
 
 var Camera = {
@@ -568,7 +569,7 @@ WebGL._ModelInit = function(ModelData, id)
 }
 
 WebGL.SetModel = function (id, url, callback)
-{	
+{
 	if (this.ModelsArray[id] == undefined)
 	{
 		this.ModelsArray[id] = new Model(url);
@@ -625,6 +626,15 @@ WebGL.SetModelPosition = function (id, position)
 		this.ModelsArray[id].position.x = position[0];
 		this.ModelsArray[id].position.y = position[1];
 		this.ModelsArray[id].position.z = position[2];
+	}	
+}
+
+WebGL.GetBB = function (id)
+{
+	if (this.ModelsArray[id] != undefined)
+	{
+		//this.ModelsArray[id].obj.boundingBox;
+		console.log(this.ModelsArray[id].obj.boundingBox);
 	}	
 }
 

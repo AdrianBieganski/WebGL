@@ -189,7 +189,6 @@ function DrawScene()
 		DrawModel(3, [0, 0, 1, 0.9]);
 	mvPopMatrix();
 	
-	
 	mvPushMatrix();
 		//Matrix.translateM(mvMatrix, 0, 1.2, 0, -3);
 		
