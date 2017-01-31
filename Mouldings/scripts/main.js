@@ -470,7 +470,7 @@ var Model = function (url)
 	this.rotation();
 	this.scale = 1.0;
 	this.color = [0.5, 0.5, 0.5, 1];
-	this.boundingBox;
+	this.wall = "L";
 }
 
 var Camera = {
@@ -499,27 +499,33 @@ WebGL.InitApp = function (div)
 * Init WebGL application.
 * @param {int} newPos - The camera position in X axis.
 */
+
+//obsolete
 WebGL.PosX = function (newPos)
 {
 	xPos = newPos;	
 }
 
+//obsolete
 WebGL.PosZ = function (newPos)
 {
 	zPos = -newPos;
 }
 
+//obsolete
 WebGL.RotateX = function (angle)
 {
 	yaw = angle - 90;
 }
 
+//obsolete
 WebGL.RotateY = function (angle)
 {
 	pitch = angle + 90;
 }
 
-WebGL.ModelColor = function (color) // do usunięcia
+//obsolete
+WebGL.ModelColor = function (color)
 {
 	ModelColor = color;
 	ModelColor = [this._ConvertColor(color[0]), this._ConvertColor(color[1]), this._ConvertColor(color[2]), this._ConvertColor(color[3])];
@@ -614,6 +620,7 @@ WebGL.SetModel = function (id, url, callback)
 	}
 }
 
+//obsolete
 WebGL._CheckModelID = function (id)
 {
 	if (this.ModelsArray[id] != undefined)
@@ -622,6 +629,7 @@ WebGL._CheckModelID = function (id)
 		return false;
 }
 
+//obsolete
 WebGL.SetModelPosition = function (id, position)
 {
 	if (this.ModelsArray[id] != undefined)
@@ -632,13 +640,57 @@ WebGL.SetModelPosition = function (id, position)
 	}	
 }
 
-WebGL.GetBB = function (id)
+WebGL.ModelCeilingDistance = function (id, dist)
 {
 	if (this.ModelsArray[id] != undefined)
 	{
-		//this.ModelsArray[id].obj.boundingBox;
-		console.log(this.ModelsArray[id].obj.boundingBox);
+		this.ModelsArray[id].position.y = -dist;
 	}	
+}
+
+WebGL.ModelCornerDistance = function (id, dist)
+{
+	if (this.ModelsArray[id] != undefined)
+	{
+		if (this.ModelsArray[id].wall == "L")
+		{
+			this.ModelsArray[id].position.x = dist;
+			this.ModelsArray[id].position.z = 0;
+		}
+		else if (this.ModelsArray[id].wall == "R")
+		{
+			this.ModelsArray[id].position.x = 0;
+			this.ModelsArray[id].position.z = -dist;
+		}
+	}
+}
+
+WebGL.ModelWallSnap = function (id, wall) //wall string
+{
+	if (this.ModelsArray[id] != undefined)
+	{
+		if (this.ModelsArray[id].wall != wall)
+		{
+			this.ModelsArray[id].wall = wall;
+			
+			if (this.ModelsArray[id].wall == "L")
+			{
+				this.ModelsArray[id].position.x = -this.ModelsArray[id].position.z;
+				this.ModelsArray[id].position.z = 0;
+			}
+			else if (this.ModelsArray[id].wall == "R")
+			{
+				this.ModelsArray[id].position.z = -this.ModelsArray[id].position.x;
+				this.ModelsArray[id].position.x = 0;
+			}
+		}
+	}
+}
+
+WebGL._Walls = true;
+WebGL.WallsVisible = function()
+{
+	this._Walls = !this._Walls;
 }
 
 WebGL.SetModelRotation = function (id, rotation)
@@ -672,6 +724,7 @@ WebGL.SetModelColor = function (id, color)
 	}	
 }
 
+//obsolete
 WebGL._ReadModel = function (ObjectData, id)
 {
 	console.log(id);
@@ -680,6 +733,7 @@ WebGL._ReadModel = function (ObjectData, id)
 	OBJ.initMeshBuffers(gl, this.ModelsArray[id]);
 }
 
+//obsolete
 WebGL.CheckModels = function ()
 {
 	console.log(this.ModelsArray);

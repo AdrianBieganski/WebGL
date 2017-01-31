@@ -80,7 +80,7 @@ function DrawModel(model_id, ModelColor)
 	gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 }
 
-function DrawOBJ(mesh, modelColor)
+function DrawOBJ(mesh, modelColor, boundingBox, wall)
 {
 	if (mesh.vertexBuffer != undefined)
 	{
@@ -113,8 +113,14 @@ function DrawOBJ(mesh, modelColor)
 		
 		gl.uniform3f(shaderProgramLight.ambientColorUniform, 0.2, 0.2, 0.2);
 		
-		//[ -3.555797100067, 2.444202899933, -1, 1, -3.111165523529, 2.888834476471 ] BoundingBox
-		gl.uniform3f(shaderProgramLight.originPositionUniform, 3.555797100067, -1, -2.888834476471);
+		if (wall == "L")
+		{
+			gl.uniform3f(shaderProgramLight.originPositionUniform, -boundingBox[0], -boundingBox[3], -boundingBox[5]); //Wall left: -x_min, -y_max, -z_max
+		}
+		else if (wall == "R")
+		{
+			gl.uniform3f(shaderProgramLight.originPositionUniform, -boundingBox[1], -boundingBox[3], -boundingBox[5]); //Wall right: -x_max, -y_max, -z_max
+		}
 		
 		var lightingDirection = [-0.25, -0.25, -1.0];
 		var adjustedLD = new Float32Array(3);
@@ -179,6 +185,9 @@ function DrawScene()
 	*/
 	
 	//walls
+	
+	if (WebGL._Walls)
+	{
 	mvPushMatrix();
 		Matrix.translateM(mvMatrix, 0, 0.5, -0.5, 0);
 		DrawModel(3, [1, 0, 0, 0.9]);
@@ -191,6 +200,7 @@ function DrawScene()
 		Matrix.translateM(mvMatrix, 0, 0, 0.5, -0.5);
 		DrawModel(3, [0, 0, 1, 0.9]);
 	mvPopMatrix();
+	}
 	
 	gl.useProgram(shaderProgramLight);
 	
@@ -206,8 +216,11 @@ function DrawScene()
 					Matrix.rotateM(mvMatrix, 0, degToRad(WebGL.ModelsArray[i].rotation.x), 1, 0, 0);
 					Matrix.rotateM(mvMatrix, 0, degToRad(WebGL.ModelsArray[i].rotation.y), 0, 1, 0);
 					Matrix.rotateM(mvMatrix, 0, degToRad(WebGL.ModelsArray[i].rotation.z), 0, 0, 1);
+					
+					if(WebGL.ModelsArray[i].wall == "R"){Matrix.rotateM(mvMatrix, 0, degToRad(-90), 0, 1, 0);}
+					
 					Matrix.scaleM(mvMatrix, 0, WebGL.ModelsArray[i].scale, WebGL.ModelsArray[i].scale, WebGL.ModelsArray[i].scale);
-					DrawOBJ(WebGL.ModelsArray[i].obj, WebGL.ModelsArray[i].color);
+					DrawOBJ(WebGL.ModelsArray[i].obj, WebGL.ModelsArray[i].color, WebGL.ModelsArray[i].obj.boundingBox, WebGL.ModelsArray[i].wall);
 				mvPopMatrix();
 			}
 		}
