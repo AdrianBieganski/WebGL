@@ -44,35 +44,35 @@ function DrawModel(model_id, ModelColor)
 	if (model_id == 1)
 	{
 		gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexPositionBuffer);
-		gl.vertexAttribPointer(shaderProgramLight.vertexPositionAttribute, cubeVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+		gl.vertexAttribPointer(shaderProgramWalls.vertexPositionAttribute, cubeVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
 	}
 	else if (model_id == 2)
 	{
 		gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexPositionBuffer2);
-		gl.vertexAttribPointer(shaderProgramLight.vertexPositionAttribute, cubeVertexPositionBuffer2.itemSize, gl.FLOAT, false, 0, 0);
+		gl.vertexAttribPointer(shaderProgramWalls.vertexPositionAttribute, cubeVertexPositionBuffer2.itemSize, gl.FLOAT, false, 0, 0);
 	}
 	else if (model_id == 3)
 	{
 		gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexPositionBuffer3);
-		gl.vertexAttribPointer(shaderProgramLight.vertexPositionAttribute, cubeVertexPositionBuffer3.itemSize, gl.FLOAT, false, 0, 0);
+		gl.vertexAttribPointer(shaderProgramWalls.vertexPositionAttribute, cubeVertexPositionBuffer3.itemSize, gl.FLOAT, false, 0, 0);
 	}
 	
 	gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexNormalBuffer);
-	gl.vertexAttribPointer(shaderProgramLight.vertexNormalAttribute, cubeVertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+	gl.vertexAttribPointer(shaderProgramWalls.vertexNormalAttribute, cubeVertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
 	
 	gl.uniform1i(shaderProgramWalls.samplerUniform, 0);
 	
-	gl.uniform3f(shaderProgramLight.ambientColorUniform, 0.2, 0.2, 0.2);
+	gl.uniform3f(shaderProgramWalls.ambientColorUniform, 0.2, 0.2, 0.2);
 	var lightingDirection = [-0.25, -0.25, -1.0];
 	var adjustedLD = new Float32Array(3);
 	Vector3.Normalize(lightingDirection, adjustedLD);
 	Vector3.Scale(adjustedLD, -1);
-	gl.uniform3fv(shaderProgramLight.lightingDirectionUniform, adjustedLD);
-	gl.uniform3f(shaderProgramLight.directionalColorUniform, 0.8, 0.8, 0.8);
+	gl.uniform3fv(shaderProgramWalls.lightingDirectionUniform, adjustedLD);
+	gl.uniform3f(shaderProgramWalls.directionalColorUniform, 0.8, 0.8, 0.8);
 	
-	gl.uniform4fv(shaderProgramLight.vertexColorUniform, ModelColor);
+	gl.uniform4fv(shaderProgramWalls.vertexColorUniform, ModelColor);
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer);
-	setMatrixUniforms(shaderProgramLight);
+	setMatrixUniforms(shaderProgramWalls);
 	
 	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 	gl.enable(gl.BLEND);
@@ -112,6 +112,10 @@ function DrawOBJ(mesh, modelColor)
 		gl.uniform1i(shaderProgramLight.samplerUniform, 0);
 		
 		gl.uniform3f(shaderProgramLight.ambientColorUniform, 0.2, 0.2, 0.2);
+		
+		//[ -3.555797100067, 2.444202899933, -1, 1, -3.111165523529, 2.888834476471 ] BoundingBox
+		gl.uniform3f(shaderProgramLight.originPositionUniform, 3.555797100067, -1, -2.888834476471);
+		
 		var lightingDirection = [-0.25, -0.25, -1.0];
 		var adjustedLD = new Float32Array(3);
 		Vector3.Normalize(lightingDirection, adjustedLD);
@@ -165,13 +169,12 @@ function DrawScene()
 	/*******/
 	
 	gl.enable(gl.DEPTH_TEST);
-	gl.useProgram(shaderProgramLight);
+	gl.useProgram(shaderProgramWalls);
 	
 	/*
 	//walking
 	Matrix.rotateM(mvMatrix, 0, degToRad(-pitch), 1, 0, 0);
 	Matrix.rotateM(mvMatrix, 0, degToRad(-yaw), 0, 1, 0);
-	
 	Matrix.translateM(mvMatrix, 0, -xPos, -yPos, -zPos);
 	*/
 	
@@ -188,6 +191,8 @@ function DrawScene()
 		Matrix.translateM(mvMatrix, 0, 0, 0.5, -0.5);
 		DrawModel(3, [0, 0, 1, 0.9]);
 	mvPopMatrix();
+	
+	gl.useProgram(shaderProgramLight);
 	
 	mvPushMatrix();
 		//Matrix.translateM(mvMatrix, 0, 1.2, 0, -3);

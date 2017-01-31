@@ -47,6 +47,7 @@ var LightFragmentShader =
 var LightVertexShader = 
 "attribute vec3 aVertexPosition;" +
 "attribute vec3 aVertexNormal;" +
+"uniform vec3 originPosition;" +
 "uniform vec4 uVertexColor;" +
 "uniform mat4 uMVMatrix;" +
 "uniform mat4 uPMatrix;" +
@@ -58,7 +59,7 @@ var LightVertexShader =
 "varying vec4 vColor;" +
 "void main(void)" +
 "{" +
-"gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);" +
+"gl_Position = uPMatrix * uMVMatrix * vec4((aVertexPosition + originPosition), 1.0);" +
 "vec3 transformedNormal = uNMatrix * aVertexNormal;" +
 "float directionalLightWeighting = max(dot(transformedNormal, uLightingDirection), 0.0);" +
 "vLightWeighting = uAmbientColor + uDirectionalColor * directionalLightWeighting;" +
@@ -154,6 +155,8 @@ function InitShaders()
 	
 	shaderProgramLight.vertexPositionAttribute = gl.getAttribLocation(shaderProgramLight, "aVertexPosition");
 	gl.enableVertexAttribArray(shaderProgramLight.vertexPositionAttribute);
+	
+	shaderProgramLight.originPositionUniform = gl.getUniformLocation(shaderProgramLight, "originPosition");
 	
 	shaderProgramLight.vertexNormalAttribute = gl.getAttribLocation(shaderProgramLight, "aVertexNormal");
 	gl.enableVertexAttribArray(shaderProgramLight.vertexNormalAttribute);
