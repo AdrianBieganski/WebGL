@@ -98,8 +98,6 @@ var WallsVertexShader =
 "vColor = uVertexColor;" +
 "}";
 
-
-
 var TextureFragmentShader =
 "precision mediump float;" +
 "varying vec2 vTextureCoord;" +
@@ -466,8 +464,10 @@ var Model = function (url)
 	this.obj;
 	this.position = function(){this.position.x = 0; this.position.y = 0; this.position.z = 0;};
 	this.position();
-	this.rotation = function(){this.rotation.x = 0; this.rotation.y = 0; this.rotation.z = 0;};;
+	this.rotation = function(){this.rotation.x = 0; this.rotation.y = 0; this.rotation.z = 0;};
 	this.rotation();
+	this.ceiling_distance = 0.0;
+	this.corner_distance = 0.0;
 	this.scale = 1.0;
 	this.color = [0.5, 0.5, 0.5, 1];
 	this.wall = "L";
@@ -640,11 +640,36 @@ WebGL.SetModelPosition = function (id, position)
 	}	
 }
 
+WebGL._SetDistances = function(id)
+{
+	if (this.ModelsArray[id].wall == "L")
+	{
+		this.ModelsArray[id].position.x = this.ModelsArray[id].corner_distance;
+		this.ModelsArray[id].position.y = this.ModelsArray[id].ceiling_distance;
+		this.ModelsArray[id].position.z = 0;
+	}
+	else if (this.ModelsArray[id].wall == "R")
+	{
+		this.ModelsArray[id].position.x = 0;
+		this.ModelsArray[id].position.y = this.ModelsArray[id].ceiling_distance;
+		this.ModelsArray[id].position.z = -this.ModelsArray[id].corner_distance;
+	}
+	else if (this.ModelsArray[id].wall == "T")
+	{
+		this.ModelsArray[id].position.x = this.ModelsArray[id].corner_distance;
+		this.ModelsArray[id].position.y = 0;
+		this.ModelsArray[id].position.z = this.ModelsArray[id].ceiling_distance;
+	}
+}
+
 WebGL.ModelCeilingDistance = function (id, dist)
 {
 	if (this.ModelsArray[id] != undefined)
 	{
-		this.ModelsArray[id].position.y = -dist;
+		this.ModelsArray[id].ceiling_distance = -dist;
+		
+		//warunki uzywane, gdy model ma przypisywana wartosc po wczesniejszym wybraniu sciany
+		this._SetDistances(id);
 	}	
 }
 
@@ -652,16 +677,10 @@ WebGL.ModelCornerDistance = function (id, dist)
 {
 	if (this.ModelsArray[id] != undefined)
 	{
-		if (this.ModelsArray[id].wall == "L")
-		{
-			this.ModelsArray[id].position.x = dist;
-			this.ModelsArray[id].position.z = 0;
-		}
-		else if (this.ModelsArray[id].wall == "R")
-		{
-			this.ModelsArray[id].position.x = 0;
-			this.ModelsArray[id].position.z = -dist;
-		}
+		this.ModelsArray[id].corner_distance = dist;
+		
+		//warunki uzywane, gdy model ma przypisywana wartosc po wczesniejszym wybraniu sciany
+		this._SetDistances(id);
 	}
 }
 
@@ -669,20 +688,11 @@ WebGL.ModelWallSnap = function (id, wall) //wall string
 {
 	if (this.ModelsArray[id] != undefined)
 	{
+		//warunki uzywane, gdy wczesniej przesuniety model zostanie przypisany do innej sciany 
 		if (this.ModelsArray[id].wall != wall)
 		{
 			this.ModelsArray[id].wall = wall;
-			
-			if (this.ModelsArray[id].wall == "L")
-			{
-				this.ModelsArray[id].position.x = -this.ModelsArray[id].position.z;
-				this.ModelsArray[id].position.z = 0;
-			}
-			else if (this.ModelsArray[id].wall == "R")
-			{
-				this.ModelsArray[id].position.z = -this.ModelsArray[id].position.x;
-				this.ModelsArray[id].position.x = 0;
-			}
+			this._SetDistances(id);
 		}
 	}
 }

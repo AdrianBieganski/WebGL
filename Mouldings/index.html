@@ -78,8 +78,8 @@ WebGL.Camera([1, -0.5, -2], [0, 0, 0], [0, 1, 0]);
 <input type="button" id="ClearImages" value="ClearImages" onClick="WebGL.ClearImages();" />
 <h3>Models methods:</h3>
 <!--<input type="button" id="ColorButton" value="Change Mouldings Color" onClick="WebGL.ModelColor([255, 127, 127, 255]);" />-->
-<input type="button" id="SetModel1" value="Set Model 1" onClick="WebGL.SetModel(5, 'assets/models/torus.obj'); WebGL.SetModelScale(5, 0.1); WebGL.ModelCeilingDistance(5, 0.2); WebGL.ModelCornerDistance(5, 0.5);" />
-<input type="button" id="SetModel2" value="Set Model 2" onClick="WebGL.SetModel(4, 'assets/models/teapot.obj'); WebGL.SetModelScale(4, 0.2); WebGL.ModelCeilingDistance(4, 0.1); WebGL.ModelCornerDistance(4, 0.3);" />
+<input type="button" id="SetModel1" value="Create Torus (5)" onClick="WebGL.SetModel(5, 'assets/models/torus.obj'); WebGL.SetModelScale(5, 0.1); WebGL.ModelCeilingDistance(5, 0.3); WebGL.ModelCornerDistance(5, 0.5);" />
+<input type="button" id="SetModel2" value="Create Teapot (4)" onClick="WebGL.SetModel(4, 'assets/models/teapot.obj'); WebGL.SetModelScale(4, 0.2); WebGL.ModelCeilingDistance(4, 0.2); WebGL.ModelCornerDistance(4, 0.3);" />
 <!--<input type="button" id="ColorButton2" value="Move Teapot" onClick="WebGL.SetModelPosition(1, [-1, 0, 0]);" />
 <input type="button" id="ColorButton2" value="Lamp Color" onClick="WebGL.SetModelColor(0, [127, 127, 255, 255]);" />
 <input type="button" id="ColorButton2" value="Teapot Color" onClick="WebGL.SetModelColor(1, [255, 127, 127, 255]);" />-->
@@ -93,8 +93,10 @@ WebGL.Camera([1, -0.5, -2], [0, 0, 0], [0, 1, 0]);
 <input type="button" id="Walls" value="Show/Hide walls" onClick="WebGL.WallsVisible();" />
 <input type="button" id="Wall4b" value="Wall left for Obj 4" onClick="WebGL.ModelWallSnap(4, 'L');" />
 <input type="button" id="Wall4a" value="Wall right for Obj 4" onClick="WebGL.ModelWallSnap(4, 'R');" />
+<input type="button" id="Wall4c" value="Ceiling for Obj 4" onClick="WebGL.ModelWallSnap(4, 'T');" />
 <input type="button" id="Wall5b" value="Wall left for Obj 5" onClick="WebGL.ModelWallSnap(5, 'L');" />
 <input type="button" id="Wall5a" value="Wall right for Obj 5" onClick="WebGL.ModelWallSnap(5, 'R');" />
+<input type="button" id="Wall5c" value="Ceiling for Obj 5" onClick="WebGL.ModelWallSnap(5, 'T');" />
 
 </body>
 </html>

@@ -121,6 +121,10 @@ function DrawOBJ(mesh, modelColor, boundingBox, wall)
 		{
 			gl.uniform3f(shaderProgramLight.originPositionUniform, -boundingBox[1], -boundingBox[3], -boundingBox[5]); //Wall right: -x_max, -y_max, -z_max
 		}
+		else if (wall == "T")
+		{
+			gl.uniform3f(shaderProgramLight.originPositionUniform, -boundingBox[0], -boundingBox[2], -boundingBox[5]); //Wall right: -x_min, -y_min, -z_max
+		}
 		
 		var lightingDirection = [-0.25, -0.25, -1.0];
 		var adjustedLD = new Float32Array(3);
@@ -177,12 +181,12 @@ function DrawScene()
 	gl.enable(gl.DEPTH_TEST);
 	gl.useProgram(shaderProgramWalls);
 	
-	/*
+	
 	//walking
 	Matrix.rotateM(mvMatrix, 0, degToRad(-pitch), 1, 0, 0);
 	Matrix.rotateM(mvMatrix, 0, degToRad(-yaw), 0, 1, 0);
 	Matrix.translateM(mvMatrix, 0, -xPos, -yPos, -zPos);
-	*/
+	
 	
 	//walls
 	
@@ -218,6 +222,7 @@ function DrawScene()
 					Matrix.rotateM(mvMatrix, 0, degToRad(WebGL.ModelsArray[i].rotation.z), 0, 0, 1);
 					
 					if(WebGL.ModelsArray[i].wall == "R"){Matrix.rotateM(mvMatrix, 0, degToRad(-90), 0, 1, 0);}
+					if(WebGL.ModelsArray[i].wall == "T"){Matrix.rotateM(mvMatrix, 0, degToRad(-90), 1, 0, 0);}
 					
 					Matrix.scaleM(mvMatrix, 0, WebGL.ModelsArray[i].scale, WebGL.ModelsArray[i].scale, WebGL.ModelsArray[i].scale);
 					DrawOBJ(WebGL.ModelsArray[i].obj, WebGL.ModelsArray[i].color, WebGL.ModelsArray[i].obj.boundingBox, WebGL.ModelsArray[i].wall);
@@ -225,15 +230,4 @@ function DrawScene()
 			}
 		}
 	mvPopMatrix();
-	
-	/*
-	mvPushMatrix();
-		Matrix.translateM(mvMatrix, 0, 3, 0.45, 0);
-		DrawModel(2);
-		
-		Matrix.rotateM(mvMatrix, 0, degToRad(90), 0, 1, 0);
-		Matrix.translateM(mvMatrix, 0, -0.5, 0, 0.4);
-		DrawModel(2);
-	mvPopMatrix();
-	*/
 }
